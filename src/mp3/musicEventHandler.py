@@ -39,6 +39,7 @@ class MusicEventHandler(QThread):
             pygame.mixer.music.load(self.songs[0]) 
             pygame.mixer.music.set_volume(self.vol) 
             pygame.mixer.music.play() 
+            pygame.mixer.music.pause()
 
     def playPause(self):
         if self.songIndex == -1 and len(self.songs) > 0:
@@ -88,7 +89,8 @@ class MusicEventHandler(QThread):
                 audio.get('artist', ['Unknown Artist'])[0],
                 audio.get('album', ['Unknown Album'])[0],
                 audio.get('date', ['Unknown Year'])[0],
-                audio.get('genre', ['Unknown genre'])[0]
+                audio.get('genre', ['Unknown genre'])[0], 
+                audio.get('comment', ['NA'])[0]
             ]
 
     def setVolume(self, vol):
@@ -133,4 +135,6 @@ class MusicEventHandler(QThread):
 
     @pyqtSlot(int, int)
     def playNewSlot(self, value, songIndex):
-        pass
+        if value == MusicEventHandler.PLAY_SELECTED:
+            self.playNew(songIndex)
+            self.parent.CUSTOM_SIGNAL.emit(self.parent.SWITCH_TO_PAUSE)

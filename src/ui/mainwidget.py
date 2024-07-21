@@ -1,7 +1,7 @@
 import sys 
 import os
 
-from PyQt5.QtWidgets import QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QVBoxLayout, QWidget, QMessageBox
 from PyQt5.QtCore import QSize, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QIcon
 
@@ -65,7 +65,10 @@ class MainWidget(QWidget):
         self.bottomWidget.stopButton.clicked.connect(self.stopButtonAction)
 
     def playSelectedButtonAction(self):
-        print("play selected button")
+        if self.topWidget.songSelectedByUser == -1:
+            QMessageBox.information(self, "Select song", "Please select a song before trying to use this button")
+        else:
+            self.musicEventHandler.PLAY_NEW_SIGNAL.emit(MusicEventHandler.PLAY_SELECTED, self.topWidget.songSelectedByUser)    
 
     def previousButtonAction(self):
         self.musicEventHandler.CUSTOM_SIGNAL.emit(MusicEventHandler.PLAY_PREVIOUS)

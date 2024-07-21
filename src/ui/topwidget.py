@@ -1,21 +1,21 @@
-from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel
+from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QTableWidget, QTableWidgetItem
 from PyQt5.QtCore import Qt
 from mp3.musicEventHandler import MusicEventHandler
 
-class TopWidget(QWidget):
+class TopWidget(QTableWidget):
     def __init__(self, songs, parent):
         super().__init__()
         self.parent = parent
         self.databaseObject = None
-
         self.songs = songs
 
-        self.layout = QGridLayout()
-        self.setLayout(self.layout)
+        self.songSelectedByUser=-1
 
-        self.layout.setAlignment(Qt.AlignTop) 
-    
-        self.labelNames = [['title', 'artist', 'album', 'year', 'genre']]
+        self.labelHeaderNames = ['title', 'artist', 'album', 'year', 'genre', 'comment']     
+        self.labelNames = []
+
+        self.setRowCount(len(self.songs))
+        self.setColumnCount(len(self.labelHeaderNames))
 
         for song in self.songs:
             ## To implement logic to get data from database.
@@ -23,12 +23,20 @@ class TopWidget(QWidget):
 
         self.labels = []
 
+        self.setHorizontalHeaderLabels(self.labelHeaderNames)
+
         for i in range(len(self.labelNames)):
             self.labels.append([])
             for j in range(len(self.labelNames[0])):
-                self.labels[i].append(QLabel(self.labelNames[i][j]))
-                self.layout.addWidget(self.labels[i][j], i, j)
-                self.labels[i][j].setAlignment(Qt.AlignCenter)
-        
+                self.setItem(i, j, QTableWidgetItem(self.labelNames[i][j]))
+
+        self.resizeColumnsToContents()
+        self.setSelectionBehavior(QTableWidget.SelectRows)
+
+        self.cellClicked.connect(self.handleCellClicked)
+
     def refreshPage():
         pass
+
+    def handleCellClicked(self, i, j):
+        self.songSelectedByUser = i
