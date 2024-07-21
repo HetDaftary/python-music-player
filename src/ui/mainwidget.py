@@ -52,6 +52,9 @@ class MainWidget(QWidget):
         self.topWidget = TopWidget(MainWidget.getSongs(), self)
         self.layout.addWidget(self.topWidget)
 
+        # Save meta data edited
+        self.topWidget.itemChanged.connect(self.changeSongMetaData)
+
     def initBottomWidget(self):
         self.bottomWidget = BottomWidget(self)
         self.layout.addWidget(self.bottomWidget)
@@ -90,3 +93,10 @@ class MainWidget(QWidget):
             self.bottomWidget.playPauseButton.setIcon(QIcon("data/icons/play.png"))
         self.bottomWidget.playPauseButton.setIconSize(QSize(32, 32))
         self.bottomWidget.playPauseButton.setFixedSize(QSize(48, 48))
+
+    def changeSongMetaData(self, item):
+        songName = self.getSongs()[item.row()]
+        rowContent = MusicEventHandler.getSongData(songName)
+        
+        rowContent[item.column()] = item.text()
+        MusicEventHandler.writeDataToSong(songName, *rowContent)

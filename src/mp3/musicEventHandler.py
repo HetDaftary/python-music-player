@@ -4,6 +4,7 @@ import pygame
 from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot
 from mutagen.easyid3 import EasyID3
 
+
 class MusicEventHandler(QThread):
     PLAY_NEXT = 0 # These will be catched by slots in MusicEventHandler thread.
     PLAY_PREVIOUS = 1
@@ -92,6 +93,20 @@ class MusicEventHandler(QThread):
                 audio.get('genre', ['Unknown genre'])[0], 
                 audio.get('comment', ['NA'])[0]
             ]
+
+    @staticmethod
+    def writeDataToSong(songName, title, artist, album, year, genre, comment):
+        if os.path.isfile(songName):
+            audio = EasyID3(songName)
+
+            audio['title'] = title
+            audio['artist'] = artist
+            audio['album'] = album
+            audio['date'] = year
+            audio['genre'] = genre
+            #audio['comment'] = comment # Cannot write comment to a song
+
+            audio.save()
 
     def setVolume(self, vol):
         vol = max(0, min(vol, 1))
