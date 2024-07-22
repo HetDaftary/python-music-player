@@ -6,37 +6,47 @@ class TopWidget(QTableWidget):
     def __init__(self, songs, parent):
         super().__init__()
         self.parent = parent
-        self.databaseObject = None
         self.songs = songs
-
         self.songSelectedByUser=-1
-
         self.labelHeaderNames = ['title', 'artist', 'album', 'year', 'genre', 'comment']     
-        self.labelNames = []
+
+        self.databaseObject = self.parent.databaseObject # MainWidget is the parent widget of TopWidget.
+        # MainWidget has the databaseObject
+
+        self.refreshPage()
+        self.setSelectionBehavior(QTableWidget.SelectRows)
+        self.cellClicked.connect(self.handleCellClicked)
+
+    def refreshPage(self):
+        self.clearContents()
 
         self.setRowCount(len(self.songs))
         self.setColumnCount(len(self.labelHeaderNames))
+
+        self.labelNames = []
+
+        for song in self.songs:
+            ## To implement logic to get data from database.
+            songDataFromDatabase = self.databaseObject.getSongData(song)
+
+            if len(songDataFromDatabase) != 0:
+                self.labelNames.append(songDataFromDatabase[0])
+            else:
+                songDataFromFile = MusicEventHandler.getSongData(song)
+                self.databaseObject.writeSongDataToTable(song, *songDataFromFile)
+                self.labelNames.append(songDataFromFile)
+
+        self.setHorizontalHeaderLabels(self.labelHeaderNames)
 
         for song in self.songs:
             ## To implement logic to get data from database.
             self.labelNames.append(MusicEventHandler.getSongData(song))
 
-        self.labels = []
-
-        self.setHorizontalHeaderLabels(self.labelHeaderNames)
-
         for i in range(len(self.labelNames)):
-            self.labels.append([])
             for j in range(len(self.labelNames[0])):
                 self.setItem(i, j, QTableWidgetItem(self.labelNames[i][j]))
 
         self.resizeColumnsToContents()
-        self.setSelectionBehavior(QTableWidget.SelectRows)
-
-        self.cellClicked.connect(self.handleCellClicked)
-
-    def refreshPage():
-        pass
 
     def handleCellClicked(self, i, j):
         self.songSelectedByUser = i

@@ -29,6 +29,8 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event):
         self.mainWidget.musicEventHandler.stop()
         self.mainWidget.musicEventHandler.wait()
+        self.mainWidget.databaseObject.cur.close()
+        self.mainWidget.databaseObject.conn.close()
         event.accept()
 
     def initFonts(self):

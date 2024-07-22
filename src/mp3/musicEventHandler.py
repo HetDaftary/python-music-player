@@ -4,7 +4,6 @@ import pygame
 from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot
 from mutagen.easyid3 import EasyID3
 
-
 class MusicEventHandler(QThread):
     PLAY_NEXT = 0 # These will be catched by slots in MusicEventHandler thread.
     PLAY_PREVIOUS = 1

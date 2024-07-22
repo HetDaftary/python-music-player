@@ -13,6 +13,7 @@ from ui.topwidget import TopWidget
 from mp3.musicEventHandler import MusicEventHandler
 
 # Import necessary classes for handling database
+from sqlite.databasehandler import DatabaseHandler
 
 class MainWidget(QWidget):
     MUSIC_PATH="data/mp3-files" # This is a static variable of this class.
@@ -24,6 +25,8 @@ class MainWidget(QWidget):
     def __init__(self, parent = None):
         super().__init__()
         self.parent = parent
+
+        self.databaseObject = DatabaseHandler()
 
         # Set layout
         self.layout = QVBoxLayout()
@@ -100,3 +103,6 @@ class MainWidget(QWidget):
         
         rowContent[item.column()] = item.text()
         MusicEventHandler.writeDataToSong(songName, *rowContent)
+        self.databaseObject.writeSongDataToTable(songName, *rowContent)
+
+        self.topWidget.resizeColumnsToContents()
