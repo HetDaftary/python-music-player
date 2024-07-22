@@ -28,24 +28,22 @@ class MusicEventHandler(QThread):
 
         # Logic parts
         self.isPlaying = False
-        self.songName = self.songs[0]
-        self.songIndex = 0
+        self.songIndex = -1
+        self.songName = self.songs[self.songIndex]
         self.volume = 0.6
 
         self.CUSTOM_SIGNAL.connect(self.eventHandlerInt)
         self.PLAY_NEW_SIGNAL.connect(self.playNewSlot)
 
-        if len(self.songs) > 0:
+    def playPause(self):
+        if self.songIndex == -1 and len(self.songs) > 0:
+            self.songIndex = 0
+            self.songName = self.songs[self.songIndex]
             pygame.mixer.music.load(self.songs[0]) 
             pygame.mixer.music.set_volume(self.vol) 
             pygame.mixer.music.play() 
             pygame.mixer.music.pause()
-
-    def playPause(self):
-        if self.songIndex == -1 and len(self.songs) > 0:
-            pygame.mixer.music.load(self.songs[0]) 
-            pygame.mixer.music.set_volume(self.vol) 
-            pygame.mixer.music.play() 
+            self.parent.songPlayingSignal.emit(self.parent.SONG_PLAYING_CODE, self.getSongData(self.songs[self.songIndex])[0])
 
         if len(self.songs) > 0:
             if self.isPlaying:
@@ -59,6 +57,9 @@ class MusicEventHandler(QThread):
             pygame.mixer.music.stop()
             self.songName = None
             self.isPlaying = False
+            self.songIndex = -1
+
+        self.parent.songPlayingSignal.emit(self.parent.SONG_PLAYING_CODE, "")
 
     def playNew(self, newIndex):
         self.stopSong() # To stop the player if it is already running.
@@ -69,6 +70,8 @@ class MusicEventHandler(QThread):
             pygame.mixer.music.play() 
             pygame.mixer.music.set_endevent(self.SONG_END)
             self.setVolume(self.volume)
+            self.songIndex = newIndex
+            self.parent.songPlayingSignal.emit(self.parent.SONG_PLAYING_CODE, self.getSongData(self.songs[self.songIndex])[0])
         except Exception as e:
             print("Caught exception", e)
             return None

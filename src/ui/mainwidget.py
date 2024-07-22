@@ -19,8 +19,10 @@ class MainWidget(QWidget):
     MUSIC_PATH="data/mp3-files" # This is a static variable of this class.
     SWITCH_TO_PLAY = 10 # Values to change UI play pause button. 
     SWITCH_TO_PAUSE = 11 # These will be catched by slots in UI/main thread.
+    SONG_PLAYING_CODE = 12 # For the signal to tell about which song is playing.
 
     CUSTOM_SIGNAL = pyqtSignal(int, name = "playPauseHandle") # Signal to throw for making event.
+    songPlayingSignal = pyqtSignal(int, str, name = "tellsWhichSongIsPlaying") # tells which song is getting played
 
     def __init__(self, parent = None):
         super().__init__()
@@ -32,20 +34,22 @@ class MainWidget(QWidget):
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
 
+        
+
         # Setup music handler threads
         self.musicEventHandler = MusicEventHandler(MainWidget.getSongs(), self)
 
         # Start music handler threads
         self.musicEventHandler.start()
 
-        # Add top widget
-        self.initTopWidget()
-
         # Add bottom panel
         self.initBottomWidget()
 
-        # Init slot for play pause button.
-        self.CUSTOM_SIGNAL.connect(self.handlePlayPauseButton)
+        # Add top widget
+        self.initTopWidget()
+
+        self.layout.addWidget(self.topWidget)
+        self.layout.addWidget(self.bottomWidget)
 
     @staticmethod
     def getSongs():
@@ -53,15 +57,20 @@ class MainWidget(QWidget):
 
     def initTopWidget(self):
         self.topWidget = TopWidget(MainWidget.getSongs(), self)
-        self.layout.addWidget(self.topWidget)
 
         # Save meta data edited
         self.topWidget.itemChanged.connect(self.changeSongMetaData)
 
     def initBottomWidget(self):
         self.bottomWidget = BottomWidget(self)
-        self.layout.addWidget(self.bottomWidget)
+        
         self.initButtonActions()
+
+        # Init slot for play pause button.
+        self.CUSTOM_SIGNAL.connect(self.handlePlayPauseButton)
+
+        # Init song title showing signal
+        self.songPlayingSignal.connect(self.handleSongPlaying)
 
     def initButtonActions(self):
         self.bottomWidget.playSelected.clicked.connect(self.playSelectedButtonAction)
@@ -87,6 +96,10 @@ class MainWidget(QWidget):
 
     def stopButtonAction(self):
         self.musicEventHandler.CUSTOM_SIGNAL.emit(MusicEventHandler.STOP)
+
+    @pyqtSlot(int, str)
+    def handleSongPlaying(self, value, songTitle):
+        self.bottomWidget.songPlayingLabel.setText(songTitle)
 
     @pyqtSlot(int)
     def handlePlayPauseButton(self, value):

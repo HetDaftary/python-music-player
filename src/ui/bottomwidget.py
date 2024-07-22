@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QPushButton, QSizePolicy
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QPushButton, QSizePolicy, QLabel
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon
 
@@ -8,7 +8,7 @@ class BottomWidget(QWidget):
         self.parent = parent
 
         self.layout = QHBoxLayout()
-        self.layout.setAlignment(Qt.AlignBottom | Qt.AlignHCenter) 
+        self.layout.setAlignment(Qt.AlignBottom) 
         self.setLayout(self.layout)
         self.setSizePolicy(QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum))
 
@@ -40,3 +40,9 @@ class BottomWidget(QWidget):
         self.stopButton.setIconSize(QSize(32, 32))
         self.stopButton.setFixedSize(QSize(48, 48))
         self.layout.addWidget(self.stopButton)
+
+        self.songPlayingLabel = QLabel("")
+        self.songPlayingLabel.setFixedHeight(48)
+        self.songPlayingLabel.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
+        self.songPlayingLabel.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.songPlayingLabel)
