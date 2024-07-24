@@ -31,7 +31,7 @@ python3 src/main.py
 
 * Current look
 
-![alt text](image.png)
+![alt text](data/images/application.png)
 
 * Select and use play selected to play song of choice or play in normal way using play button.
 * Can edit meta data by just editing in the application.
