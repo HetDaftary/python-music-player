@@ -7,6 +7,8 @@ class MainWindow(QMainWindow):
     def __init__(self, app):
         super().__init__()
 
+        self.setWindowTitle("My Tunes")
+
         # Set size
         self.app = app
         screenSize = self.app.primaryScreen().size() 
