@@ -17,6 +17,10 @@ class DatabaseHandler:
         query = f"SELECT title, artist, album, year, genre, comment FROM songs WHERE filename=\"{songName}\""
         return self.executeSqlQuery(self.conn, self.cur, query)
     
+    def deleteSongData(self, songName):
+        query = f"DELETE FROM songs WHERE filename=\"{songName}\";"
+        self.executeSqlQuery(self.conn, self.cur, query)
+
     @staticmethod
     def executeSqlQuery(conn, cur, query):
         """

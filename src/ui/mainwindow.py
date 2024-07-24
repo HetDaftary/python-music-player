@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QMainWindow, QMenu, QAction, QMenuBar, QApplication, QFileDialog
 from PyQt5.QtGui import QFontDatabase
 
 from ui.mainwidget import MainWidget
@@ -22,6 +22,9 @@ class MainWindow(QMainWindow):
         # Initialize style sheet
         self.initStyleSheet()
 
+        # Init menu bar.
+        self.initMenu()
+
         # Show main window
         self.show()
 
@@ -31,7 +34,36 @@ class MainWindow(QMainWindow):
         self.mainWidget.musicEventHandler.wait()
         self.mainWidget.databaseObject.cur.close()
         self.mainWidget.databaseObject.conn.close()
-        event.accept()
+        QApplication.quit()
+
+
+    def initMenu(self):
+        self.menubar = QMenuBar(self)
+
+        self.fileMenu = QMenu("File")
+        
+        self.openSongAction = QAction("Open and play a song")
+        self.exitAppAction = QAction("Close")
+        self.addSongAction = QAction("Add a song")
+        self.deleteSongAction = QAction("Delete a song")
+
+        self.fileMenu.addAction(self.openSongAction)
+        self.fileMenu.addAction(self.exitAppAction)
+        self.fileMenu.addSeparator()
+        self.fileMenu.addAction(self.addSongAction)
+        self.fileMenu.addAction(self.deleteSongAction)
+
+        self.menubar.addMenu(self.fileMenu)
+
+        self.setMenuBar(self.menubar)
+
+        self.openSongAction.triggered.connect(self.mainWidget.openAndPlayAMp3)
+        self.exitAppAction.triggered.connect(self.closeAppMenuAction)
+        self.addSongAction.triggered.connect(self.mainWidget.addSong)
+        self.deleteSongAction.triggered.connect(self.mainWidget.deleteSong)
+
+    def closeAppMenuAction(self):
+        self.closeEvent(0)
 
     def initFonts(self):
         font_id = QFontDatabase.addApplicationFont("data/fonts/Aller_Rg.ttf")
