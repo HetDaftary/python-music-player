@@ -31,7 +31,7 @@ python3 src/main.py
 
 * Current look
 
-![alt text](data/images/application.png)
+![alt text](image.png)
 
 * Select and use play selected to play song of choice or play in normal way using play button.
 * Can edit meta data by just editing in the application.
@@ -44,5 +44,8 @@ python3 src/main.py
 | To implement to store and use sqlite database for meta data and comments | Done |
 | To implement a feature that shows which song is currently being played by the player | Done |
 | To add a feature for adding or deleting a song | Done |
-| To implement the other menu requirements like playing a song not in library in close button |Done |
-| Drag and drop feature to implement add songs | Not started |
+| To implement the other menu requirements like playing a song not in library in close button | Done |
+| Drag and drop feature to implement add songs | Done |
+| Song name should be above buttons and keep buttons in bottom widget center aligned only | started |
+| Make table ui pretty | not started |
+| Implement the right click functionality to add/delete songs | not started |

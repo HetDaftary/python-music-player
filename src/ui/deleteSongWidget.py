@@ -21,8 +21,7 @@ class DeleteSongWidget(QDialog):
         self.deleteSongButton.clicked.connect(self.deleteSongFromMenuButtonAction)
 
         screenSize = QApplication.primaryScreen().size() 
-        self.resize(screenSize.width() // 2, screenSize.height() // 2)
-
+        
     def deleteSongFromMenuButtonAction(self):
         self.mainWidget.selectedEntries.extend([x.text() for x in self.listOfSongs.selectedItems()])
         self.accept()

@@ -119,7 +119,7 @@ class MainWidget(QWidget):
     def changeSongMetaData(self, item):
         songName = self.getSongs()[item.row()]
         rowContent = MusicEventHandler.getSongData(songName)
-        
+        item.setText(item.text().capitalize())
         rowContent[item.column()] = item.text()
         MusicEventHandler.writeDataToSong(songName, *rowContent)
         self.databaseObject.writeSongDataToTable(songName, *rowContent)

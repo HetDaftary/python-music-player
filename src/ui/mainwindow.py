@@ -1,5 +1,7 @@
-from PyQt5.QtWidgets import QMainWindow, QMenu, QAction, QMenuBar, QApplication, QFileDialog
+from PyQt5.QtWidgets import QMainWindow, QMenu, QAction, QMenuBar, QApplication
 from PyQt5.QtGui import QFontDatabase
+
+from qt_material import apply_stylesheet, list_themes
 
 from ui.mainwidget import MainWidget
 
@@ -57,12 +59,27 @@ class MainWindow(QMainWindow):
 
         self.menubar.addMenu(self.fileMenu)
 
+        self.themeMenu = QMenu("Theme")
+
+        self.themeActions = []
+        
+        for themeName in list_themes():
+            self.themeActions.append(QAction(themeName))
+            self.themeMenu.addAction(self.themeActions[-1])
+            self.themeActions[-1].triggered.connect(lambda _, x=themeName : self.setTheme(x))
+
+        self.menubar.addMenu(self.themeMenu)
+
         self.setMenuBar(self.menubar)
 
         self.openSongAction.triggered.connect(self.mainWidget.openAndPlayAMp3)
         self.exitAppAction.triggered.connect(self.closeAppMenuAction)
         self.addSongAction.triggered.connect(self.mainWidget.addSong)
         self.deleteSongAction.triggered.connect(self.mainWidget.deleteSong)
+
+    def setTheme(self, theme):
+        apply_stylesheet(self.app, theme)
+        self.mainWidget.topWidget.resizeColumnsToContents()
 
     def closeAppMenuAction(self):
         self.closeEvent(0)

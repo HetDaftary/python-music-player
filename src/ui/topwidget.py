@@ -19,6 +19,7 @@ class TopWidget(QTableWidget):
         self.cellClicked.connect(self.handleCellClicked)
         self.setAcceptDrops(True)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSelectionMode(QTableWidget.SingleSelection)
 
     def refreshPage(self, songs):
         self.songs = songs
@@ -37,10 +38,10 @@ class TopWidget(QTableWidget):
             songDataFromDatabase = self.databaseObject.getSongData(song)
 
             if len(songDataFromDatabase) != 0:
-                self.labelNames.append(songDataFromDatabase[0])
+                self.labelNames.append([x.capitalize() for x in songDataFromDatabase[0]])
                 toWrite = songDataFromDatabase[0]
             else:
-                songDataFromFile = MusicEventHandler.getSongData(song)
+                songDataFromFile = [x.capitalize() for x in MusicEventHandler.getSongData(song)]
                 self.databaseObject.writeSongDataToTable(song, *songDataFromFile)
                 self.labelNames.append(songDataFromFile)
 
