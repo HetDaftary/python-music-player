@@ -41,8 +41,8 @@ python3 src/main.py
 
 | Task | Status |
 |------|--------|
-| To implement to store and use sqlite database for meta data and comments | Started |
-| To implement a feature that shows which song is currently being played by the player | Not started |
-| To add a feature for adding or deleting a song | Not started |
-| To implement the other menu requirements like playing a song not in library in close button | Not started |
+| To implement to store and use sqlite database for meta data and comments | Done |
+| To implement a feature that shows which song is currently being played by the player | Done |
+| To add a feature for adding or deleting a song | Done |
+| To implement the other menu requirements like playing a song not in library in close button |Done |
 | Drag and drop feature to implement add songs | Not started |
