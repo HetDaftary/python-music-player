@@ -1,5 +1,6 @@
-from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QAbstractItemView
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QSizePolicy
+from PyQt5.QtCore import Qt, QUrl
+from PyQt5.QtGui import QDropEvent
 from mp3.musicEventHandler import MusicEventHandler
 
 class TopWidget(QTableWidget):
@@ -16,6 +17,8 @@ class TopWidget(QTableWidget):
         self.refreshPage(self.songs)
         self.setSelectionBehavior(QTableWidget.SelectRows)
         self.cellClicked.connect(self.handleCellClicked)
+        self.setAcceptDrops(True)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
     def refreshPage(self, songs):
         self.songs = songs
@@ -53,3 +56,14 @@ class TopWidget(QTableWidget):
 
     def handleCellClicked(self, i, j):
         self.songSelectedByUser = i
+
+    def dragEnterEvent(self, event: QDropEvent):
+        if event.mimeData().hasText():
+            textEntered = event.mimeData().text().strip()
+            if textEntered.startswith("file://") and textEntered.endswith(".mp3"):
+                self.parent.addSong(textEntered[7:]) # converting file url to normal file.
+    
+    def dropEvent(self, event: QDropEvent):
+        for url in event.mimeData().urls():
+            filePath = url.toLocalFile()
+            print(filePath)

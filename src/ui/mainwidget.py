@@ -148,9 +148,10 @@ class MainWidget(QWidget):
     
     def addSong(self):
         filePath, _ = self.getOpenFileName()
-        
+        self.addSong(self, filePath)
+ 
+    def addSong(self, filePath): # Overloading this method so we can also add songs by using drag and drop feature.
         if os.path.join(self.MUSIC_PATH, os.path.basename(filePath)) in self.getSongs():
-            QMessageBox.information(self, "Song already added", "Song is already added")
             return None
         
         if filePath:
