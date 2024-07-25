@@ -1,6 +1,7 @@
 import os
 
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QPushButton, QListWidget, QApplication
+from PyQt5.QtCore import QSize
 
 class DeleteSongWidget(QDialog):
     def __init__(self, parent):
@@ -20,7 +21,7 @@ class DeleteSongWidget(QDialog):
         self.layout.addWidget(self.deleteSongButton)
         self.deleteSongButton.clicked.connect(self.deleteSongFromMenuButtonAction)
 
-        screenSize = QApplication.primaryScreen().size() 
+        self.resize(QSize(520, 280))
         
     def deleteSongFromMenuButtonAction(self):
         self.mainWidget.selectedEntries.extend([x.text() for x in self.listOfSongs.selectedItems()])

@@ -50,7 +50,7 @@ class MusicEventHandler(QThread):
             pygame.mixer.music.set_volume(self.vol) 
             pygame.mixer.music.play() 
             pygame.mixer.music.pause()
-            self.parent.songPlayingSignal.emit(self.parent.SONG_PLAYING_CODE, self.getSongData(self.songs[self.songIndex])[0])
+            self.parent.songPlayingSignal.emit(self.parent.SONG_PLAYING_CODE, self.songs[self.songIndex])
 
         if len(self.songs) > 0:
             if self.isPlaying:
@@ -60,7 +60,7 @@ class MusicEventHandler(QThread):
             self.isPlaying = not self.isPlaying
 
     def stopSong(self):
-        if self.songIndex == -1:
+        if self.songIndex != -1:
             pygame.mixer.music.stop()
             self.songName = None
             self.isPlaying = False
@@ -78,7 +78,7 @@ class MusicEventHandler(QThread):
             pygame.mixer.music.set_endevent(self.SONG_END)
             self.setVolume(self.volume)
             self.songIndex = newIndex
-            self.parent.songPlayingSignal.emit(self.parent.SONG_PLAYING_CODE, self.getSongData(self.songs[self.songIndex])[0])
+            self.parent.songPlayingSignal.emit(self.parent.SONG_PLAYING_CODE, self.songs[self.songIndex])
         except Exception as e:
             print("Caught exception", e)
             return None
@@ -200,7 +200,7 @@ class MusicEventHandler(QThread):
                 self.setVolume(self.volume)
                 self.songIndex = maxsize
                 self.isPlaying = [0]
-                self.parent.songPlayingSignal.emit(self.parent.SONG_PLAYING_CODE, self.getSongData(filePath)[0])
+                self.parent.songPlayingSignal.emit(self.parent.SONG_PLAYING_CODE, filePath)
                 self.parent.CUSTOM_SIGNAL.emit(self.parent.SWITCH_TO_PAUSE)
             except Exception as e:
                 print("Caught exception", e)

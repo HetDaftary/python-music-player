@@ -30,6 +30,8 @@ class MainWidget(QWidget):
         super().__init__()
         self.parent = parent
 
+        self.currentTheme = "dark.css"
+
         self.databaseObject = DatabaseHandler()
 
         # Set layout
@@ -99,8 +101,40 @@ class MainWidget(QWidget):
         self.musicEventHandler.CUSTOM_SIGNAL.emit(MusicEventHandler.STOP)
 
     @pyqtSlot(int, str)
-    def handleSongPlaying(self, value, songTitle):
+    def handleSongPlaying(self, value, songName):
+        songTitle = ""
+        if songName != "" and songName != None:
+            songData = self.databaseObject.getSongData(songName)[0]
+            if len(songData) != 0:
+                songTitle = songData[0]
+            else:
+                songData = MusicEventHandler.getSongData(songName)
+                songTitle = songData[0]
+
         self.bottomWidget.songPlayingLabel.setText(songTitle)
+        self.setSongPlayingSignalButtonBorder()
+        
+    def setSongPlayingSignalButtonBorder(self):    
+        if self.bottomWidget.songPlayingLabel.text().strip() == "":
+            self.bottomWidget.songPlayingLabel.setStyleSheet("""
+                                                                QLabel {
+                                                                    border: none;
+                                                                }
+                                                             """)
+        elif "dark" in self.currentTheme.lower():
+            self.bottomWidget.songPlayingLabel.setStyleSheet("""
+                                                                QLabel {
+                                                                    border:  2px solid #448aff; 
+                                                                    color:  #448aff;
+                                                                }
+                                                             """)
+        else:
+            self.bottomWidget.songPlayingLabel.setStyleSheet("""
+                                                                QLabel {
+                                                                    border:  2px solid #000000; 
+                                                                }
+                                                             """)
+    
 
     @pyqtSlot()
     def refreshTopWidget(self):
@@ -145,12 +179,8 @@ class MainWidget(QWidget):
             self.musicEventHandler.INT_STRING_SIGNAL.emit(self.musicEventHandler.PLAY_SONG_NOT_IN_LIB, filePath)
         else:
             print("pressed cancel")
-    
-    def addSong(self):
-        filePath, _ = self.getOpenFileName()
-        self.addSong(self, filePath)
  
-    def addSong(self, filePath): # Overloading this method so we can also add songs by using drag and drop feature.
+    def addSongWithPath(self, filePath): # Overloading this method so we can also add songs by using drag and drop feature.
         if os.path.join(self.MUSIC_PATH, os.path.basename(filePath)) in self.getSongs():
             return None
         
@@ -159,6 +189,11 @@ class MainWidget(QWidget):
         else:
             print("pressed cancel")
     
+    def addSong(self):
+        filePath, _ = self.getOpenFileName()
+        if filePath != "" and filePath != None:
+            self.addSongWithPath(self, filePath)
+
     def deleteSong(self):
         self.selectedEntries = []
         

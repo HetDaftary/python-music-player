@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QSizePolicy
+from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QSizePolicy, QMenu, QAction
 from PyQt5.QtCore import Qt, QUrl
 from PyQt5.QtGui import QDropEvent
 from mp3.musicEventHandler import MusicEventHandler
@@ -9,7 +9,7 @@ class TopWidget(QTableWidget):
         self.parent = parent
         self.songs = songs
         self.songSelectedByUser=-1
-        self.labelHeaderNames = ['title', 'artist', 'album', 'year', 'genre', 'comment']     
+        self.labelHeaderNames = ['Title', 'Artist', 'Album', 'Year', 'Genre', 'Comment']     
 
         self.databaseObject = self.parent.databaseObject # MainWidget is the parent widget of TopWidget.
         # MainWidget has the databaseObject
@@ -62,9 +62,23 @@ class TopWidget(QTableWidget):
         if event.mimeData().hasText():
             textEntered = event.mimeData().text().strip()
             if textEntered.startswith("file://") and textEntered.endswith(".mp3"):
-                self.parent.addSong(textEntered[7:]) # converting file url to normal file.
+                self.parent.addSongWithPath(textEntered[7:]) # converting file url to normal file.
     
     def dropEvent(self, event: QDropEvent):
         for url in event.mimeData().urls():
             filePath = url.toLocalFile()
             print(filePath)
+
+    def contextMenuEvent(self, event):
+        self.menuOnRightClick = QMenu(self)
+
+        self.addSongAction = QAction("Add a song")
+        self.deleteSongAction = QAction("Delete a song")
+
+        self.menuOnRightClick.addAction(self.addSongAction)
+        self.menuOnRightClick.addAction(self.deleteSongAction)
+        
+        self.addSongAction.triggered.connect(lambda _: self.parent.addSong())
+        self.deleteSongAction.triggered.connect(lambda _: self.parent.deleteSong())
+
+        self.menuOnRightClick.exec_(event.globalPos())

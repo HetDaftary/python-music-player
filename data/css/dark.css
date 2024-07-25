@@ -1,21 +1,37 @@
-QMainWindow {
-    background-color: #272727;
+QMainWindow, QWidget {
+    background-color: #31363b;
     color: #ffffff;   
     text-align: center;
+    font-weight: bold;
+    font-size: 20px;
     font-family: 'Aller';
 }
 
-QWidget {
-    background-color: #272727;
-    color: #ffffff;
+QMenuBar, QMenu {
+    background-color: #232629;
 }
 
 QPushButton {
-    border:  2px solid #ffffff; 
+    border:  2px solid #448aff; 
+    color: #448aff;
     border-radius: 5px;
 }
 
-QLabel {
-    font-family: 'Aller';
-    text-align: center;
+QTableWidget {
+    font-size: 20px;
+    font-weight: bold;
+    padding: 6px;
+}
+
+QTableWidget::item {
+    padding: 5px;
+    font-weight: bold;
+}
+
+QHeaderView::section, QTableWidget::indicator {
+    background-color: #232629;
+    color: #bdbdbe;
+    border: 1px solid #232629;
+    font-weight: bold;
+    padding: 6px;
 }

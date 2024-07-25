@@ -1,7 +1,10 @@
 from PyQt5.QtWidgets import QMainWindow, QMenu, QAction, QMenuBar, QApplication
 from PyQt5.QtGui import QFontDatabase
 
-from qt_material import apply_stylesheet, list_themes
+USE_QT_MATERIAL=False
+
+if USE_QT_MATERIAL:
+    from qt_material import apply_stylesheet, list_themes
 
 from ui.mainwidget import MainWidget
 
@@ -23,11 +26,11 @@ class MainWindow(QMainWindow):
         # Init fonts
         self.initFonts()
 
-        # Initialize style sheet
-        self.initStyleSheet()
-
         # Init menu bar.
         self.initMenu()
+
+        # Initialize style sheet
+        self.initStyleSheet()
 
         # Show main window
         self.show()
@@ -59,16 +62,19 @@ class MainWindow(QMainWindow):
 
         self.menubar.addMenu(self.fileMenu)
 
-        self.themeMenu = QMenu("Theme")
+        global USE_QT_MATERIAL # Define if we should use Qt Material or not.
 
-        self.themeActions = []
+        if USE_QT_MATERIAL:
+            self.themeMenu = QMenu("Theme")
+
+            self.themeActions = []
         
-        for themeName in list_themes():
-            self.themeActions.append(QAction(themeName))
-            self.themeMenu.addAction(self.themeActions[-1])
-            self.themeActions[-1].triggered.connect(lambda _, x=themeName : self.setTheme(x))
+            for themeName in list_themes():
+                self.themeActions.append(QAction(themeName))
+                self.themeMenu.addAction(self.themeActions[-1])
+                self.themeActions[-1].triggered.connect(lambda _, x=themeName : self.setTheme(x))
 
-        self.menubar.addMenu(self.themeMenu)
+            self.menubar.addMenu(self.themeMenu)
 
         self.setMenuBar(self.menubar)
 
@@ -79,7 +85,10 @@ class MainWindow(QMainWindow):
 
     def setTheme(self, theme):
         apply_stylesheet(self.app, theme)
+        self.mainWidget.currentTheme = theme
         self.mainWidget.topWidget.resizeColumnsToContents()
+
+        self.mainWidget.setSongPlayingSignalButtonBorder()
 
     def closeAppMenuAction(self):
         self.closeEvent(0)
@@ -97,3 +106,4 @@ class MainWindow(QMainWindow):
         with open('data/css/dark.css', 'r') as f:
             stylesheet = f.read()
             self.app.setStyleSheet(stylesheet)
+        self.mainWidget.topWidget.resizeColumnsToContents()
