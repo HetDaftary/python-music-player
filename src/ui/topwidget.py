@@ -60,9 +60,11 @@ class TopWidget(QTableWidget):
 
     def dragEnterEvent(self, event: QDropEvent):
         if event.mimeData().hasText():
-            textEntered = event.mimeData().text().strip()
-            if textEntered.startswith("file://") and textEntered.endswith(".mp3"):
-                self.parent.addSongWithPath(textEntered[7:]) # converting file url to normal file.
+            filesGiven = event.mimeData().text().strip().split('\n')
+            for file in filesGiven:
+                file = file.rstrip('\r') 
+                if file.startswith("file://") and file.endswith(".mp3"):
+                    self.parent.addSongWithPath(file[7:]) # converting file url to normal file.
     
     def dropEvent(self, event: QDropEvent):
         for url in event.mimeData().urls():
