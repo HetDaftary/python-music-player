@@ -162,7 +162,6 @@ class MainWidget(QWidget):
 
     def getOpenFileName(self, name):
         options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
         homeDir = QDir.homePath()  # Get the user's home directory
         filePath, _ = QFileDialog.getOpenFileName(self,
                                                    name,
@@ -173,7 +172,7 @@ class MainWidget(QWidget):
         return filePath, _
 
     def openAndPlayAMp3(self):
-        filePath, _ = self.getOpenFileName("Open and play a song")
+        filePath, _ = self.getOpenFileName( "Open and play a song")
         
         if filePath:
             self.musicEventHandler.INT_STRING_SIGNAL.emit(self.musicEventHandler.PLAY_SONG_NOT_IN_LIB, filePath)
