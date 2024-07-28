@@ -3,7 +3,7 @@ import os
 
 from PyQt5.QtWidgets import QVBoxLayout, QWidget, QMessageBox, QFileDialog
 from PyQt5.QtCore import QSize, pyqtSignal, pyqtSlot, QDir
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QColor
 
 # Importing necessary classes for UI
 from ui.bottomwidget import BottomWidget
@@ -113,7 +113,26 @@ class MainWidget(QWidget):
 
         self.bottomWidget.songPlayingLabel.setText(songTitle)
         self.setSongPlayingSignalButtonBorder()
+
+        songs = self.getSongs()
+
+        for i in range(len(songs)):
+            if songName == songs[i]:
+                self.highlightRow(i)
+                return None
+            
+        self.highlightRow(sys.maxsize)
+
+    def highlightRow(self, row):
+        for i in range(self.topWidget.rowCount()):
+            if i == row:    
+                for col in range(self.topWidget.columnCount()):
+                    self.topWidget.item(i, col).setBackground(QColor(82, 83, 186))  # #24c9c7
+            else:
+                for col in range(self.topWidget.columnCount()):
+                    self.topWidget.item(i, col).setBackground(QColor(49, 54, 59))  # #31363b
         
+
     def setSongPlayingSignalButtonBorder(self):    
         if self.bottomWidget.songPlayingLabel.text().strip() == "":
             self.bottomWidget.songPlayingLabel.setStyleSheet("""
