@@ -192,7 +192,7 @@ class MainWidget(QWidget):
     def addSong(self):
         filePath, _ = self.getOpenFileName()
         if filePath != "" and filePath != None:
-            self.addSongWithPath(self, filePath)
+            self.addSongWithPath(filePath)
 
     def deleteSong(self):
         self.selectedEntries = []
