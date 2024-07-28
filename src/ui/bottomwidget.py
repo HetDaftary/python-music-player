@@ -28,6 +28,7 @@ class BottomWidget(QWidget):
 
         self.playSelected = QPushButton()
         self.playSelected.setIcon(QIcon("data/icons/play.png"))
+        self.playSelected.setIconSize(QSize(32, 32))
         self.playSelected.setFixedSize(QSize(48, 48))
         self.playSelected.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Minimum))
         self.buttonsLayout.addWidget(self.playSelected)
