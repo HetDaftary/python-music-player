@@ -160,12 +160,12 @@ class MainWidget(QWidget):
 
         self.topWidget.resizeColumnsToContents()
 
-    def getOpenFileName(self):
+    def getOpenFileName(self, name):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         homeDir = QDir.homePath()  # Get the user's home directory
         filePath, _ = QFileDialog.getOpenFileName(self,
-                                                   "QFileDialog.getOpenFileName()",
+                                                   name,
                                                    homeDir,
                                                    "MP3 Files (*.mp3);;All Files (*)",
                                                    options=options)
@@ -173,7 +173,7 @@ class MainWidget(QWidget):
         return filePath, _
 
     def openAndPlayAMp3(self):
-        filePath, _ = self.getOpenFileName()
+        filePath, _ = self.getOpenFileName("Open and play a song")
         
         if filePath:
             self.musicEventHandler.INT_STRING_SIGNAL.emit(self.musicEventHandler.PLAY_SONG_NOT_IN_LIB, filePath)
@@ -190,7 +190,7 @@ class MainWidget(QWidget):
             print("pressed cancel")
     
     def addSong(self):
-        filePath, _ = self.getOpenFileName()
+        filePath, _ = self.getOpenFileName("Add a song")
         if filePath != "" and filePath != None:
             self.addSongWithPath(filePath)
 

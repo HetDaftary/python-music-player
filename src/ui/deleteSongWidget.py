@@ -7,6 +7,7 @@ class DeleteSongWidget(QDialog):
     def __init__(self, parent):
         super().__init__(parent)
         self.parent = parent
+        self.setWindowTitle("Delete a song")
         self.mainWidget = self.parent
 
         self.listOfSongs = QListWidget()
