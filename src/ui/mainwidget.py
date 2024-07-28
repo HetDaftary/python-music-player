@@ -146,7 +146,7 @@ class MainWidget(QWidget):
         if value == MainWidget.SWITCH_TO_PAUSE:
             self.bottomWidget.playPauseButton.setIcon(QIcon("data/icons/pause.png"))
         else:
-            self.bottomWidget.playPauseButton.setIcon(QIcon("data/icons/play.png"))
+            self.bottomWidget.playPauseButton.setIcon(QIcon("data/icons/resume.png"))
         self.bottomWidget.playPauseButton.setIconSize(QSize(32, 32))
         self.bottomWidget.playPauseButton.setFixedSize(QSize(48, 48))
 

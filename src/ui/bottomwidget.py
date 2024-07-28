@@ -26,8 +26,9 @@ class BottomWidget(QWidget):
         self.layout.addWidget(self.songPlayingLabel)
         self.layout.setAlignment(Qt.AlignBottom | Qt.AlignHCenter) 
 
-        self.playSelected = QPushButton(" Play seelected ")
-        self.playSelected.setFixedHeight(48)
+        self.playSelected = QPushButton()
+        self.playSelected.setIcon(QIcon("data/icons/play.png"))
+        self.playSelected.setFixedSize(QSize(48, 48))
         self.playSelected.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Minimum))
         self.buttonsLayout.addWidget(self.playSelected)
         
@@ -38,7 +39,7 @@ class BottomWidget(QWidget):
         self.buttonsLayout.addWidget(self.previousButton)
         
         self.playPauseButton = QPushButton()
-        self.playPauseButton.setIcon(QIcon("data/icons/play.png"))
+        self.playPauseButton.setIcon(QIcon("data/icons/resume.png"))
         self.playPauseButton.setIconSize(QSize(32, 32))
         self.playPauseButton.setFixedSize(QSize(48, 48))
         self.buttonsLayout.addWidget(self.playPauseButton)
