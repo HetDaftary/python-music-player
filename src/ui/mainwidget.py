@@ -104,9 +104,9 @@ class MainWidget(QWidget):
     def handleSongPlaying(self, value, songName):
         songTitle = ""
         if songName != "" and songName != None:
-            songData = self.databaseObject.getSongData(songName)[0]
+            songData = self.databaseObject.getSongData(songName)
             if len(songData) != 0:
-                songTitle = songData[0]
+                songTitle = songData[0][0]
             else:
                 songData = MusicEventHandler.getSongData(songName)
                 songTitle = songData[0]
