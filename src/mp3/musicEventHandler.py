@@ -99,8 +99,7 @@ class MusicEventHandler(QThread):
                 audio.get('artist', ['Unknown Artist'])[0],
                 audio.get('album', ['Unknown Album'])[0],
                 audio.get('date', ['Unknown Year'])[0],
-                audio.get('genre', ['Unknown genre'])[0], 
-                audio.get('comment', ['NA'])[0]
+                audio.get('genre', ['Unknown genre'])[0]
             ]
 
     @staticmethod
