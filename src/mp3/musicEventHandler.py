@@ -99,11 +99,12 @@ class MusicEventHandler(QThread):
                 audio.get('artist', ['Unknown Artist'])[0],
                 audio.get('album', ['Unknown Album'])[0],
                 audio.get('date', ['Unknown Year'])[0],
-                audio.get('genre', ['Unknown genre'])[0]
+                audio.get('genre', ['Unknown genre'])[0],
+                "NA"
             ]
 
     @staticmethod
-    def writeDataToSong(songName, title, artist, album, year, genre, comment):
+    def writeDataToSong(songName, title, artist, album, year, genre, comment = "NA"):
         if os.path.isfile(songName):
             audio = EasyID3(songName)
 
@@ -112,8 +113,7 @@ class MusicEventHandler(QThread):
             audio['album'] = album
             audio['date'] = year
             audio['genre'] = genre
-            #audio['comment'] = comment # Cannot write comment to a song
-
+            
             audio.save()
 
     def setVolume(self, vol):
