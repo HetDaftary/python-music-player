@@ -20,7 +20,8 @@ QPushButton {
 QTableWidget {
     font-size: 20px;
     font-weight: bold;
-    padding: 6px;
+    gridline-color: #448aff;
+    border: 1px solid #448aff;
 }
 
 QTableWidget::item {
@@ -28,10 +29,15 @@ QTableWidget::item {
     font-weight: bold;
 }
 
-QHeaderView::section, QTableWidget::indicator {
+QHeaderView::section, QHeaderView::item, QTableWidget::indicator {
     background-color: #232629;
     color: #bdbdbe;
-    border: 1px solid #232629;
+    border-color: #448aff;
+    border: 1px solid #448aff;
     font-weight: bold;
     padding: 6px;
+}
+
+QScrollBar {
+    background-color: #ffffff;
 }

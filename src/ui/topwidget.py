@@ -17,8 +17,9 @@ class TopWidget(QTableWidget):
         self.refreshPage(self.songs)
         self.setSelectionBehavior(QTableWidget.SelectRows)
         self.cellClicked.connect(self.handleCellClicked)
-        #self.itemDoubleClicked.connect(self.parent.playSelectedButtonAction)
+        #self.itemDoubleClicked.connect(self.parent.playSelectedButtonAction) # Double click event would trigger play selected.
         self.setAcceptDrops(True)
+        self.verticalHeader().setVisible(False)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.setSelectionMode(QTableWidget.SingleSelection)
 

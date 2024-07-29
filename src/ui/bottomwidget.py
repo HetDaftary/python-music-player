@@ -10,6 +10,7 @@ class BottomWidget(QWidget):
         self.layout = QVBoxLayout()
         
         self.buttonsWidget = QWidget()
+        self.setMaximumHeight(140)
         self.buttonsLayout = QHBoxLayout()
         self.buttonsWidget.setLayout(self.buttonsLayout)
         

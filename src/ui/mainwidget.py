@@ -18,13 +18,15 @@ from sqlite.databasehandler import DatabaseHandler
 
 class MainWidget(QWidget):
     MUSIC_PATH="data/mp3-files" # This is a static variable of this class.
-    SWITCH_TO_PLAY = 10 # Values to change UI play pause button. 
+    SWITCH_TO_RESUME = 10 # Values to change UI play pause button. 
     SWITCH_TO_PAUSE = 11 # These will be catched by slots in UI/main thread.
-    SONG_PLAYING_CODE = 12 # For the signal to tell about which song is playing.
-    REFRESH_SONGS_SIGNAL = 13
+    SWITCH_TO_RESUME = 12
+    SONG_PLAYING_CODE = 13 # For the signal to tell about which song is playing.
+    REFRESH_SONGS_SIGNAL = 14
     CUSTOM_SIGNAL = pyqtSignal(int, name = "playPauseHandle") # Signal to throw for making event.
     songPlayingSignal = pyqtSignal(int, str, name = "tellsWhichSongIsPlaying") # tells which song is getting played
     REFRESH_TOP_WIDGET_SIGNAL = pyqtSignal(name = "refreshTopWidget") # Refreshes top widget
+    DESELECT_SONG_ON_TABLE = pyqtSignal(name = "deselectTheSelectSong")
 
     def __init__(self, parent = None):
         super().__init__()
@@ -61,6 +63,7 @@ class MainWidget(QWidget):
         self.topWidget = TopWidget(MainWidget.getSongs(), self)
 
         # Save meta data edited
+        self.DESELECT_SONG_ON_TABLE.connect(self.handleDeselectSong)
         self.topWidget.itemChanged.connect(self.changeSongMetaData)
         self.REFRESH_TOP_WIDGET_SIGNAL.connect(self.refreshTopWidget)
 
@@ -75,6 +78,10 @@ class MainWidget(QWidget):
         # Init song title showing signal
         self.songPlayingSignal.connect(self.handleSongPlaying)
 
+    @pyqtSlot()
+    def handleDeselectSong(self):
+        self.topWidget.clearSelection()
+        
     def initButtonActions(self):
         self.bottomWidget.playSelected.clicked.connect(self.playSelectedButtonAction)
         self.bottomWidget.previousButton.clicked.connect(self.previousButtonAction)
@@ -164,8 +171,13 @@ class MainWidget(QWidget):
     def handlePlayPauseButton(self, value):
         if value == MainWidget.SWITCH_TO_PAUSE:
             self.bottomWidget.playPauseButton.setIcon(QIcon("data/icons/pause.png"))
-        else:
+            self.playButtonState = MainWidget.SWITCH_TO_PAUSE
+        elif value == MainWidget.SWITCH_TO_RESUME:
             self.bottomWidget.playPauseButton.setIcon(QIcon("data/icons/resume.png"))
+            self.playButtonState = MainWidget.SWITCH_TO_RESUME
+        else:
+            self.bottomWidget.playPauseButton.setIcon(QIcon("data/icons/play.png"))
+            self.playButtonState = MainWidget.SWITCH_TO_RESUME
         self.bottomWidget.playPauseButton.setIconSize(QSize(32, 32))
         self.bottomWidget.playPauseButton.setFixedSize(QSize(48, 48))
 
@@ -213,14 +225,15 @@ class MainWidget(QWidget):
             self.addSongWithPath(filePath)
 
     def deleteSong(self):
-        self.selectedEntries = []
+        songs = self.getSongs()
         
-        # This widget is suppused to give us the song to delete in the above list
-        self.deleteSongWidget = DeleteSongWidget(self)
-        self.deleteSongWidget.exec_()
+        collectRows = set()
 
-        for songName in self.selectedEntries:
-            self.musicEventHandler.INT_STRING_SIGNAL.emit(self.musicEventHandler.DELETE_A_SONG, os.path.join(self.MUSIC_PATH, songName))
+        if self.topWidget.selectedItems():
+            for i in self.topWidget.selectedItems():
+                collectRows.add(i.row())
 
-            # Delete entry from database
-            self.databaseObject.deleteSongData(songName)
+            for i in collectRows:
+                songName = songs[i]
+                self.musicEventHandler.INT_STRING_SIGNAL.emit(self.musicEventHandler.DELETE_A_SONG, songName)
+                self.databaseObject.deleteSongData(songName)
