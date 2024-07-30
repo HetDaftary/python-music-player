@@ -13,7 +13,7 @@ class PlayNextonSongEnd(QThread):
     def run(self):
         while self.running:
             for event in pygame.event.get():
-                if event.type == pygame.USEREVENT:
+                if event.type == pygame.USEREVENT and pygame.mixer.music.get_busy():
                     print("Song ended, emitting signal to play next song.")
                     self.eventHandler.CUSTOM_SIGNAL.emit(MusicEventHandler.PLAY_NEXT)
             time.sleep(0.1)  # Prevent the thread from consuming too much CPU
