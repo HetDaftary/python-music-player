@@ -10,19 +10,18 @@ class BottomWidget(QWidget):
         self.layout = QVBoxLayout()
         
         self.buttonsWidget = QWidget()
-        self.setMaximumHeight(140)
+        self.setMaximumHeight(150)
         self.buttonsLayout = QHBoxLayout()
         self.buttonsWidget.setLayout(self.buttonsLayout)
         
-        self.buttonsLayout.setAlignment(Qt.AlignBottom | Qt.AlignHCenter) 
+        self.buttonsLayout.setAlignment(Qt.AlignHCenter) 
         self.setLayout(self.layout)
-        self.buttonsWidget.setSizePolicy(QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum))
-        self.buttonsWidget.setMaximumHeight(60)
-        self.setSizePolicy(QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum))
+        self.buttonsWidget.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum))
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum))
 
         self.songPlayingLabel = QLabel("")
-        self.songPlayingLabel.setFixedHeight(48)
         self.songPlayingLabel.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
+        self.songPlayingLabel.setMaximumHeight(self.buttonsWidget.height())
         self.songPlayingLabel.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(self.songPlayingLabel)
         self.layout.setAlignment(Qt.AlignBottom | Qt.AlignHCenter) 
@@ -31,7 +30,6 @@ class BottomWidget(QWidget):
         self.playSelected.setIcon(QIcon("data/icons/play.png"))
         self.playSelected.setIconSize(QSize(32, 32))
         self.playSelected.setFixedSize(QSize(48, 48))
-        self.playSelected.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Minimum))
         self.buttonsLayout.addWidget(self.playSelected)
         
         self.previousButton = QPushButton()

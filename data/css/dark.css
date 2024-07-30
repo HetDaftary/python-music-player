@@ -17,6 +17,11 @@ QPushButton {
     border-radius: 5px;
 }
 
+QLabel {
+    font-size: 20px;
+    font-weight: bold;
+}
+
 QTableWidget {
     font-size: 20px;
     font-weight: bold;

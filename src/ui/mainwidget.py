@@ -145,6 +145,8 @@ class MainWidget(QWidget):
             self.bottomWidget.songPlayingLabel.setStyleSheet("""
                                                                 QLabel {
                                                                     border: none;
+                                                                    font-size: 20px;
+                                                                    font-weight: bold;
                                                                 }
                                                              """)
         elif "dark" in self.currentTheme.lower():
@@ -152,12 +154,16 @@ class MainWidget(QWidget):
                                                                 QLabel {
                                                                     border:  2px solid #448aff; 
                                                                     color:  #448aff;
+                                                                    font-size: 20px;
+                                                                    font-weight: bold;
                                                                 }
                                                              """)
         else:
             self.bottomWidget.songPlayingLabel.setStyleSheet("""
                                                                 QLabel {
-                                                                    border:  2px solid #000000; 
+                                                                    border:  2px solid #000000;
+                                                                    font-size: 20px;
+                                                                    font-weight: bold; 
                                                                 }
                                                              """)
     
