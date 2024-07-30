@@ -12,6 +12,7 @@ from ui.deleteSongWidget import DeleteSongWidget
 
 # Importing necessary classes for handling music
 from mp3.musicEventHandler import MusicEventHandler
+from mp3.playnextonsongend import PlayNextonSongEnd
 
 # Import necessary classes for handling database
 from sqlite.databasehandler import DatabaseHandler
@@ -42,6 +43,7 @@ class MainWidget(QWidget):
 
         # Setup music handler threads
         self.musicEventHandler = MusicEventHandler(MainWidget.getSongs(), self)
+        self.playNextonSongEnd = PlayNextonSongEnd(self, self.musicEventHandler)
 
         # Add bottom panel
         self.initBottomWidget()
@@ -54,6 +56,7 @@ class MainWidget(QWidget):
 
         # Start music handler threads
         self.musicEventHandler.start()
+        self.playNextonSongEnd.start()
 
     @staticmethod
     def getSongs():

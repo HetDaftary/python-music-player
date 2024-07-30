@@ -37,12 +37,15 @@ class MainWindow(QMainWindow):
 
     # Defining this to stop pygame thread.
     def closeEvent(self, event):
+        self.mainWidget.playNextonSongEnd.stop()
+        self.mainWidget.playNextonSongEnd.wait()
+
         self.mainWidget.musicEventHandler.stop()
         self.mainWidget.musicEventHandler.wait()
+
         self.mainWidget.databaseObject.cur.close()
         self.mainWidget.databaseObject.conn.close()
         QApplication.quit()
-
 
     def initMenu(self):
         self.menubar = QMenuBar(self)
