@@ -37,6 +37,7 @@ class MusicEventHandler(QThread):
         self.songIndex = -1
         self.songName = ""
         self.volume = 0.6
+        self.stopedByUser = False
 
         self.CUSTOM_SIGNAL.connect(self.eventHandlerInt)
         self.PLAY_NEW_SIGNAL.connect(self.playNewSlot)
@@ -61,6 +62,7 @@ class MusicEventHandler(QThread):
 
     def stopSong(self):
         if self.songIndex != -1:
+            self.stopedByUser = True
             pygame.mixer.music.stop()
             self.songName = None
             self.isPlaying = False
