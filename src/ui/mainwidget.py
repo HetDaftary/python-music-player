@@ -118,7 +118,7 @@ class MainWidget(QWidget):
                 songData = MusicEventHandler.getSongData(songName)
                 songTitle = songData[0]
 
-        self.bottomWidget.songPlayingLabel.setText(f"Playing song : {songTitle}")
+        self.bottomWidget.songPlayingLabel.setText(f"Playing song : {songTitle}" if songTitle != "" else "")
         self.setSongPlayingSignalButtonBorder()
 
         songs = self.getSongs()
