@@ -118,7 +118,7 @@ class MainWidget(QWidget):
                 songData = MusicEventHandler.getSongData(songName)
                 songTitle = songData[0]
 
-        self.bottomWidget.songPlayingLabel.setText(songTitle)
+        self.bottomWidget.songPlayingLabel.setText(f"Playing song : {songTitle}")
         self.setSongPlayingSignalButtonBorder()
 
         songs = self.getSongs()
@@ -195,7 +195,7 @@ class MainWidget(QWidget):
         MusicEventHandler.writeDataToSong(songName, *rowContent)
         self.databaseObject.writeSongDataToTable(songName, *rowContent)
 
-        self.topWidget.resizeColumnsToContents()
+        #self.topWidget.resizeColumnsToContents()
 
     def getOpenFileName(self, name):
         options = QFileDialog.Options()

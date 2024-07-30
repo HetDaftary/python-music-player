@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QSizePolicy, QMenu, QAction
+from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QSizePolicy, QMenu, QAction, QHeaderView
 from PyQt5.QtCore import Qt, QUrl
 from PyQt5.QtGui import QDropEvent
 from mp3.musicEventHandler import MusicEventHandler
@@ -20,6 +20,8 @@ class TopWidget(QTableWidget):
         #self.itemDoubleClicked.connect(self.parent.playSelectedButtonAction) # Double click event would trigger play selected.
         self.setAcceptDrops(True)
         self.verticalHeader().setVisible(False)
+        self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.setWordWrap(True)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.setSelectionMode(QTableWidget.SingleSelection)
 
@@ -55,7 +57,7 @@ class TopWidget(QTableWidget):
                     # Only allow comments to be editable
                     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
 
-        self.resizeColumnsToContents()
+        #self.resizeColumnsToContents()
 
     def handleCellClicked(self, i, j):
         self.songSelectedByUser = i

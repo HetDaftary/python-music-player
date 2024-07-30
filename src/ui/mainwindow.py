@@ -86,7 +86,7 @@ class MainWindow(QMainWindow):
     def setTheme(self, theme):
         apply_stylesheet(self.app, theme)
         self.mainWidget.currentTheme = theme
-        self.mainWidget.topWidget.resizeColumnsToContents()
+        #self.mainWidget.topWidget.resizeColumnsToContents()
 
         self.mainWidget.setSongPlayingSignalButtonBorder()
 
@@ -106,4 +106,4 @@ class MainWindow(QMainWindow):
         with open('data/css/dark.css', 'r') as f:
             stylesheet = f.read()
             self.app.setStyleSheet(stylesheet)
-        self.mainWidget.topWidget.resizeColumnsToContents()
+        #self.mainWidget.topWidget.resizeColumnsToContents()
