@@ -1,12 +1,9 @@
-from PyQt5.QtWidgets import QMainWindow, QMenu, QAction, QMenuBar, QApplication
+from PyQt5.QtWidgets import QMainWindow, QMenu, QAction, QMenuBar, QApplication, QSplitter
 from PyQt5.QtGui import QFontDatabase
-
-USE_QT_MATERIAL=False
-
-if USE_QT_MATERIAL:
-    from qt_material import apply_stylesheet, list_themes
+from PyQt5.QtCore import Qt
 
 from ui.mainwidget import MainWidget
+from ui.leftpanel import LeftPanel
 
 class MainWindow(QMainWindow):
     def __init__(self, app):
@@ -20,8 +17,19 @@ class MainWindow(QMainWindow):
         self.resize(screenSize.width() // 2, screenSize.height() // 2)
 
         # Set main widget
+        self.leftPanel = LeftPanel(self)
         self.mainWidget = MainWidget(self)
-        self.setCentralWidget(self.mainWidget)
+
+        self.splitter = QSplitter(Qt.Horizontal)
+
+        self.splitter.addWidget(self.leftPanel)
+        self.splitter.addWidget(self.mainWidget)
+
+        # Set the stretch factors
+        self.splitter.setStretchFactor(0, 1)
+        self.splitter.setStretchFactor(1, 7)
+
+        self.setCentralWidget(self.splitter)
 
         # Init fonts
         self.initFonts()
@@ -62,33 +70,12 @@ class MainWindow(QMainWindow):
 
         self.menubar.addMenu(self.fileMenu)
 
-        global USE_QT_MATERIAL # Define if we should use Qt Material or not.
-
-        if USE_QT_MATERIAL:
-            self.themeMenu = QMenu("Theme")
-
-            self.themeActions = []
-        
-            for themeName in list_themes():
-                self.themeActions.append(QAction(themeName))
-                self.themeMenu.addAction(self.themeActions[-1])
-                self.themeActions[-1].triggered.connect(lambda _, x=themeName : self.setTheme(x))
-
-            self.menubar.addMenu(self.themeMenu)
-
         self.setMenuBar(self.menubar)
 
         self.openSongAction.triggered.connect(self.mainWidget.openAndPlayAMp3)
         self.exitAppAction.triggered.connect(self.closeAppMenuAction)
         self.addSongAction.triggered.connect(self.mainWidget.addSong)
         self.deleteSongAction.triggered.connect(self.mainWidget.deleteSong)
-
-    def setTheme(self, theme):
-        apply_stylesheet(self.app, theme)
-        self.mainWidget.currentTheme = theme
-        #self.mainWidget.topWidget.resizeColumnsToContents()
-
-        self.mainWidget.setSongPlayingSignalButtonBorder()
 
     def closeAppMenuAction(self):
         self.closeEvent(0)

@@ -44,5 +44,9 @@ QHeaderView::section, QHeaderView::item, QTableWidget::indicator {
 }
 
 QScrollBar {
-    background-color: #ffffff;
+    background-color: #448aff;
+}
+
+QTreeWidget {
+    border: 1px solid #448aff;
 }
