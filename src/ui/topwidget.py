@@ -1,3 +1,5 @@
+import urllib.parse
+
 from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QSizePolicy, QMenu, QAction, QHeaderView
 from PyQt5.QtCore import Qt, QUrl
 from PyQt5.QtGui import QDropEvent
@@ -66,7 +68,8 @@ class TopWidget(QTableWidget):
         if event.mimeData().hasText():
             filesGiven = event.mimeData().text().strip().split('\n')
             for file in filesGiven:
-                file = file.rstrip('\r') 
+                file = file.rstrip('\r')
+                file = urllib.parse.unquote(file)
                 if file.startswith("file://") and file.endswith(".mp3"):
                     self.parent.addSongWithPath(file[7:]) # converting file url to normal file.
     
