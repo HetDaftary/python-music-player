@@ -17,8 +17,8 @@ class MainWindow(QMainWindow):
         self.resize(screenSize.width() // 2, screenSize.height() // 2)
 
         # Set main widget
-        self.leftPanel = LeftPanel(self)
         self.mainWidget = MainWidget(self)
+        self.leftPanel = LeftPanel(self)
 
         self.splitter = QSplitter(Qt.Horizontal)
 
@@ -61,12 +61,15 @@ class MainWindow(QMainWindow):
         self.exitAppAction = QAction("Close")
         self.addSongAction = QAction("Add a song")
         self.deleteSongAction = QAction("Delete a song")
+        self.createPlaylistAction = QAction("Create a playlist")
 
         self.fileMenu.addAction(self.openSongAction)
         self.fileMenu.addAction(self.exitAppAction)
         self.fileMenu.addSeparator()
         self.fileMenu.addAction(self.addSongAction)
         self.fileMenu.addAction(self.deleteSongAction)
+        self.fileMenu.addSeparator()
+        self.fileMenu.addAction(self.createPlaylistAction)
 
         self.menubar.addMenu(self.fileMenu)
 
@@ -76,6 +79,7 @@ class MainWindow(QMainWindow):
         self.exitAppAction.triggered.connect(self.closeAppMenuAction)
         self.addSongAction.triggered.connect(self.mainWidget.addSong)
         self.deleteSongAction.triggered.connect(self.mainWidget.deleteSong)
+        self.createPlaylistAction.triggered.connect(self.leftPanel.createPlaylist)
 
     def closeAppMenuAction(self):
         self.closeEvent(0)
