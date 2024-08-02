@@ -20,75 +20,60 @@ class MusicEventHandler(QThread):
     SONG_END = pygame.USEREVENT # If song automatically ends.
 
     CUSTOM_SIGNAL = pyqtSignal(int, name = "musicPlayer") # Signal to throw for making event.
-    PLAY_NEW_SIGNAL = pyqtSignal(int, int, name = "playNewSignal")
-    INT_STRING_SIGNAL = pyqtSignal(int, str, name="playSongOutsideLib")
-
-    def __init__(self, songs, parent = None) -> None:
+    PLAY_NEW_SIGNAL = pyqtSignal(int, str, name = "playNewSignal")
+    
+    def __init__(self, parent = None) -> None:
         super().__init__(parent)
         self.parent = parent 
         
         pygame.init()
         pygame.mixer.init()
-        self.songs = songs
         self.vol = 0.6
 
         # Logic parts
         self.isPlaying = False
-        self.songIndex = -1
         self.songName = ""
         self.volume = 0.6
 
         self.CUSTOM_SIGNAL.connect(self.eventHandlerInt)
         self.PLAY_NEW_SIGNAL.connect(self.playNewSlot)
-        self.INT_STRING_SIGNAL.connect(self.intStringSignalHandler)
-
+    
     def playPause(self):
-        if self.songIndex == -1 and len(self.songs) > 0:
-            self.songIndex = 0
-            self.songName = self.songs[self.songIndex]
-            pygame.mixer.music.load(self.songs[0]) 
+        if self.songName != None and self.songName != "":
+            pygame.mixer.music.load(self.songName) 
             pygame.mixer.music.set_volume(self.vol) 
             pygame.mixer.music.play() 
             pygame.mixer.music.pause()
-            self.parent.songPlayingSignal.emit(self.parent.SONG_PLAYING_CODE, self.songs[self.songIndex])
+            self.parent.songPlayingSignal.emit(self.parent.SONG_PLAYING_CODE, self.songName)
 
-        if len(self.songs) > 0:
-            if self.isPlaying:
-                pygame.mixer.music.pause()
-            else:
-                pygame.mixer.music.unpause()
-            self.isPlaying = not self.isPlaying
+        if self.isPlaying:
+            pygame.mixer.music.pause()
+        else:
+            pygame.mixer.music.unpause()
+        self.isPlaying = not self.isPlaying
 
     def stopSong(self):
-        if self.songIndex != -1:
-            pygame.mixer.music.stop()
-            self.songName = None
-            self.isPlaying = False
-            self.songIndex = -1
-
+        pygame.mixer.music.stop()
+        self.isPlaying = False
+        
         self.parent.CUSTOM_SIGNAL.emit(self.parent.SWITCH_TO_RESUME)
         self.parent.DESELECT_SONG_ON_TABLE.emit()
         self.parent.songPlayingSignal.emit(self.parent.SONG_PLAYING_CODE, "")
 
-    def playNew(self, newIndex):
+    def playNew(self, songName):
         self.stopSong() # To stop the player if it is already running.
 
         # To play new song
         try:
-            pygame.mixer.music.load(self.songs[newIndex])
+            pygame.mixer.music.load(songName)
             pygame.mixer.music.play() 
             pygame.mixer.music.set_endevent(self.SONG_END)
             self.setVolume(self.volume)
-            self.songIndex = newIndex
-            self.parent.songPlayingSignal.emit(self.parent.SONG_PLAYING_CODE, self.songs[self.songIndex])
+            self.parent.songPlayingSignal.emit(self.parent.SONG_PLAYING_CODE, songName)
             self.parent.CUSTOM_SIGNAL.emit(self.parent.SWITCH_TO_PAUSE)
         except Exception as e:
             print("Caught exception", e)
             return None
-        
-        self.songIndex = newIndex
-        self.songName = self.songs[newIndex]
-        self.isPlaying = True
 
         self.parent.DESELECT_SONG_ON_TABLE.emit()
 
@@ -125,22 +110,6 @@ class MusicEventHandler(QThread):
         vol = max(0, min(vol, 1))
         pygame.mixer.music.set_volume(vol) 
 
-    def playPrevious(self):
-        if self.songIndex > -1 and self.songIndex < len(self.songs):  
-            self.playNew((self.songIndex - 1) % len(self.songs))
-        else:
-            self.playNew(0)
-
-        self.parent.DESELECT_SONG_ON_TABLE.emit()
-
-    def playNext(self):
-        if self.songIndex > -1 and self.songIndex < len(self.songs):    
-            self.playNew((self.songIndex + 1) % len(self.songs))
-        else:
-            self.playNew(0)
-
-        self.parent.DESELECT_SONG_ON_TABLE.emit()
-
     def stop(self):
         self.stopSong()
         pygame.mixer.quit()
@@ -150,11 +119,7 @@ class MusicEventHandler(QThread):
 
     @pyqtSlot(int)
     def eventHandlerInt(self, value):
-        if value == MusicEventHandler.PLAY_NEXT:
-            self.playNext()
-        elif value == MusicEventHandler.PLAY_PREVIOUS:
-            self.playPrevious()
-        elif value == MusicEventHandler.PLAY_PAUSE:
+        if value == MusicEventHandler.PLAY_PAUSE:
             self.playPause()
             if self.isPlaying:
                 self.parent.CUSTOM_SIGNAL.emit(self.parent.SWITCH_TO_PAUSE)
@@ -163,54 +128,8 @@ class MusicEventHandler(QThread):
         elif value == MusicEventHandler.STOP:
             self.stopSong()
             
-
-    @pyqtSlot(int, int)
-    def playNewSlot(self, value, songIndex):
-        if value == MusicEventHandler.PLAY_SELECTED:
-            self.playNew(songIndex)
-            self.parent.CUSTOM_SIGNAL.emit(self.parent.SWITCH_TO_PAUSE)
-
     @pyqtSlot(int, str)
-    def intStringSignalHandler(self, val, filePath):
-        if val == self.ADD_A_SONG:
-            self.addSongToLib(filePath)
-        elif val == self.PLAY_SONG_NOT_IN_LIB:
-            self.playNotInLib(filePath)
-        elif val == self.DELETE_A_SONG:
-            self.deleteSongFromLib(filePath)
-
-    def addSongToLib(self, filePath):
-        basename = os.path.basename(filePath)
-        try:
-            shutil.copy(filePath, os.path.join(self.parent.MUSIC_PATH, basename))
-            self.songs = self.parent.getSongs()
-            self.parent.REFRESH_TOP_WIDGET_SIGNAL.emit()
-        except Exception as e:
-            print(e)
-
-    def deleteSongFromLib(self, filePath):
-        try:    
-            os.remove(filePath)
-            self.songs.remove(filePath)
-            self.parent.REFRESH_TOP_WIDGET_SIGNAL.emit()
-        except Exception as e:
-            print(e)
-
-    def playNotInLib(self, filePath):
-        if os.path.exists(filePath):
-            self.stopSong()
-
-            try:
-                pygame.mixer.music.load(filePath)
-                pygame.mixer.music.play() 
-                pygame.mixer.music.set_endevent(self.SONG_END)
-                self.setVolume(self.volume)
-                self.songIndex = maxsize
-                self.isPlaying = [0]
-                self.parent.songPlayingSignal.emit(self.parent.SONG_PLAYING_CODE, filePath)
-                self.parent.CUSTOM_SIGNAL.emit(self.parent.SWITCH_TO_PAUSE)
-                self.parent.REFRESH_TOP_WIDGET_SIGNAL.emit()
-                #self.parent.DESELECT_SONG_ON_TABLE.emit()
-            except Exception as e:
-                print("Caught exception", e)
-                return None
+    def playNewSlot(self, value, songName):
+        if value == MusicEventHandler.PLAY_SELECTED:
+            self.playNew(songName)
+            self.parent.CUSTOM_SIGNAL.emit(self.parent.SWITCH_TO_PAUSE)

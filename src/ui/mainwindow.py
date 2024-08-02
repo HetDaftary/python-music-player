@@ -1,3 +1,5 @@
+import sys
+
 from PyQt5.QtWidgets import QMainWindow, QMenu, QAction, QMenuBar, QApplication, QSplitter
 from PyQt5.QtGui import QFontDatabase
 from PyQt5.QtCore import Qt
@@ -18,7 +20,7 @@ class MainWindow(QMainWindow):
 
         # Set main widget
         self.mainWidget = MainWidget(self)
-        self.leftPanel = LeftPanel(self)
+        self.leftPanel = LeftPanel(self.mainWidget.databaseObject, self)
 
         self.splitter = QSplitter(Qt.Horizontal)
 
@@ -50,7 +52,6 @@ class MainWindow(QMainWindow):
         self.mainWidget.databaseObject.cur.close()
         self.mainWidget.databaseObject.conn.close()
         QApplication.quit()
-
 
     def initMenu(self):
         self.menubar = QMenuBar(self)

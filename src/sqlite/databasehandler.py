@@ -6,23 +6,84 @@ class DatabaseHandler:
         self.conn = sqlite3.connect(DatabaseHandler.DATABASE_FILENAME)
         self.cur = self.conn.cursor()
 
-        self.databaseTableCreateSyntax = "CREATE TABLE IF NOT EXISTS songs (title	TEXT, genre	TEXT, artist	TEXT, filename	TEXT, comment	TEXT, album	TEXT, year	TEXT, PRIMARY KEY(filename));"
-        DatabaseHandler.executeSqlQuery(self.conn, self.cur, self.databaseTableCreateSyntax)
+        createTableSyntax = [
+            "CREATE TABLE IF NOT EXISTS songDetails (title	TEXT, artist	TEXT, genre	TEXT, album	TEXT, comment	TEXT, year	TEXT, songId	INTEGER, PRIMARY KEY(songId));",
+            "CREATE TABLE IF NOT EXISTS songNameToSongId (songName	TEXT,songId	INTEGER,PRIMARY KEY(songName));",
+            "CREATE TABLE IF NOT EXISTS playlistIdToSongId (songId	INTEGER,playlistId	INTEGER,PRIMARY KEY(playlistId,songId));",
+            "CREATE TABLE IF NOT EXISTS playlistNameToPlaylistId (playlistName	TEXT,playlistId	INTEGER,PRIMARY KEY(playlistName));"
+        ]
 
-    def writeSongDataToTable(self, songName, title, artist, album, year, genre, comment):
-        query = f"INSERT or REPLACE into songs(filename, title, artist, album, year, genre, comment) VALUES (\"{songName}\",\"{title}\",\"{artist}\",\"{album}\",\"{year}\",\"{genre}\",\"{comment}\");"
-        self.executeSqlQuery(self.conn, self.cur, query)
+        for i in createTableSyntax:
+            self.executeSqlQuery(i)
 
+    def getPlaylistIdFromName(self, playlistName):
+        query=f"SELECT playlistId from playlistNameToPlaylistId WHERE playlistName=\"{playlistName}\";"
+        playlistIdList = self.executeSqlQuery(query)
+
+        if playlistIdList != None and len(playlistIdList) != 0:
+            return playlistIdList[0][0]
+        else:
+            query=f"SELECT COUNT(playlistId) FROM playlistNameToPlaylistId;"
+            playlistIdList = self.executeSqlQuery(query)
+
+            query=f"INSERT INTO playlistNameToPlaylistId(playlistName, playlistId) VALUES (\"{playlistName}\", {playlistIdList[0][0]})"
+            self.executeSqlQuery(query)
+            return playlistIdList[0][0]
+
+    def getSongIdFromSongName(self, songName):
+        query=f"SELECT songId from songNameToSongId WHERE songName=\"{songName}\";"
+        songIdList = self.executeSqlQuery(query)
+
+        if songIdList != None and len(songIdList) != 0:
+            return songIdList[0][0]
+        else:
+            query=f"SELECT COUNT(songId) FROM songNameToSongId;"
+            songIdList = self.executeSqlQuery(query)
+
+            query=f"INSERT INTO songNameToSongId(songName, songId) VALUES (\"{songName}\", {songIdList[0][0]})"
+            self.executeSqlQuery(query)
+            return songIdList[0][0]
+
+    def writeSongDataToTable(self, playlistName, songName, title, artist, album, year, genre, comment):
+        songId = self.getSongIdFromSongName(songName)
+        playlistId = self.getPlaylistIdFromName(playlistName)
+        query = f"INSERT or REPLACE into songDetails(songId, title, artist, album, year, genre, comment) VALUES ({songId},\"{title}\",\"{artist}\",\"{album}\",\"{year}\",\"{genre}\",\"{comment}\");"
+        self.executeSqlQuery(query)
+
+        query = f"INSERT or REPLACE into playlistIdToSongId(playlistId, songId) VALUES ({playlistId}, {songId});"
+        self.executeSqlQuery(query)
+
+    def getSongs(self, playlistName):
+        query = ""
+        if playlistName.lower() == "library":
+            query = "SELECT songName FROM songNameToSongId;"
+        else:
+            playlistId = self.getPlaylistIdFromName(playlistName)
+            query = f"SELECT sns.songName FROM playlistIdToSongId pts INNER JOIN songNameToSongId sns ON pts.songId = sns.songId WHERE pts.playlistId = {playlistId};"
+        return [x[0] for x in self.executeSqlQuery(query)]    
+        
     def getSongData(self, songName):
-        query = f"SELECT title, artist, album, year, genre, comment FROM songs WHERE filename=\"{songName}\""
-        return self.executeSqlQuery(self.conn, self.cur, query)
-    
-    def deleteSongData(self, songName):
-        query = f"DELETE FROM songs WHERE filename=\"{songName}\";"
-        self.executeSqlQuery(self.conn, self.cur, query)
+        query = f"SELECT sd.title, sd.artist, sd.album, sd.year, sd.genre, sd.comment FROM songNameToSongId sns INNER JOIN songDetails sd ON sns.songId = sd.songId WHERE sns.songName=\"{songName}\";"
+        return self.executeSqlQuery(query)
 
-    @staticmethod
-    def executeSqlQuery(conn, cur, query):
+    def deleteSongData(self, playlistName, songName):
+        playlistName = playlistName.lower()
+        playlistId = self.getPlaylistIdFromName(playlistName)
+        songId = self.getSongIdFromSongName(songName)
+        
+        # Delete song from playlist
+        query = f"DELETE FROM playlistIdToSongId WHERE playlistId={playlistId} AND songId={songId};"
+        self.executeSqlQuery(query)
+
+        if playlistName == "library":
+            query = f"DELETE FROM songDetails WHERE songId={songId};"
+            self.executeSqlQuery(query)
+            query = f"DELETE FROM songNameToSongId WHERE songName=\"{songName}\";"
+            self.executeSqlQuery(query)
+            query = f"DELETE FROM playlistIdToSongId WHERE songId={songId};"
+            self.executeSqlQuery(query)
+
+    def executeSqlQuery(self, query):
         """
         Execute a SQL query statement using the provided connection and cursor.
 
@@ -31,19 +92,35 @@ class DatabaseHandler:
         :param sql_query: SQL query string to execute
         :return: Result of the query if it is a SELECT statement, otherwise None
         """
+        #print(query)
         try:
-            cur.execute(query)
+            self.cur.execute(query)
 
             # Commit if it's not a SELECT statement
             if query.strip().upper().startswith("SELECT"):
-                return cur.fetchall()
+                return self.cur.fetchall()
             else:
-                conn.commit()
+                self.conn.commit()
         except sqlite3.Error as e:
             print(f"An error occurred: {e}")
             return None
 
 if __name__ == "__main__":
     object = DatabaseHandler()
-    object.getSongData("data/mp3-files/happy-pharell-williams.mp3")
-    object.getSongData("Not exist")
+    object.writeSongDataToTable("library", "song1", "title1", "artist1", "album1", "year1", "genre1", "comment1")
+    object.writeSongDataToTable("library", "song2", "title2", "artist2", "album2", "year2", "genre2", "comment2")
+    object.writeSongDataToTable("playlist-1", "song1", "title1", "artist1", "album1", "year1", "genre1", "comment1")
+    object.writeSongDataToTable("playlist-1", "song2", "title2", "artist2", "album2", "year2", "genre2", "comment2")
+    object.writeSongDataToTable("playlist-2", "song1", "title1", "artist1", "album1", "year1", "genre1", "comment1")
+    object.writeSongDataToTable("playlist-2", "song2", "title2", "artist2", "album2", "year2", "genre2", "comment2")
+    print(object.getSongData("song1"))
+    print(object.getSongData("song2"))
+
+    for song in object.getSongs("library"):
+        print(song, object.getSongData(song))
+
+    for song in object.getSongs("playlist-1"):
+        print(song, object.getSongData(song))
+
+    object.deleteSongData("playlist-2", "song1")
+    object.deleteSongData("library", "song2")

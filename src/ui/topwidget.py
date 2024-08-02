@@ -1,3 +1,4 @@
+import os
 import urllib.parse
 
 from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QSizePolicy, QMenu, QAction, QHeaderView
@@ -6,17 +7,18 @@ from PyQt5.QtGui import QDropEvent
 from mp3.musicEventHandler import MusicEventHandler
 
 class TopWidget(QTableWidget):
-    def __init__(self, songs, parent):
+    def __init__(self, parent):
         super().__init__()
         self.parent = parent
-        self.songs = songs
         self.songSelectedByUser=-1
         self.labelHeaderNames = ['Title', 'Artist', 'Album', 'Year', 'Genre', 'Comment']     
 
         self.databaseObject = self.parent.databaseObject # MainWidget is the parent widget of TopWidget.
         # MainWidget has the databaseObject
 
-        self.refreshPage(self.songs)
+        self.addMusicPathToDatabase()
+
+        self.refreshPage(self.databaseObject.getSongs("library"))
         self.setSelectionBehavior(QTableWidget.SelectRows)
         self.cellClicked.connect(self.handleCellClicked)
         #self.itemDoubleClicked.connect(self.parent.playSelectedButtonAction) # Double click event would trigger play selected.
@@ -26,6 +28,13 @@ class TopWidget(QTableWidget):
         self.setWordWrap(True)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.setSelectionMode(QTableWidget.SingleSelection)
+
+    def addMusicPathToDatabase(self):
+        for file in os.listdir(self.parent.MUSIC_PATH):
+            songName = os.path.join(self.parent.MUSIC_PATH, file)
+            songDataFromDatabase = self.databaseObject.getSongData(songName)
+            if file.endswith(".mp3") and songDataFromDatabase != None and len(songDataFromDatabase) == 0:
+                self.databaseObject.writeSongDataToTable("library", songName, *MusicEventHandler.getSongData(songName))
 
     def refreshPage(self, songs):
         self.songs = songs
@@ -45,12 +54,7 @@ class TopWidget(QTableWidget):
 
             if len(songDataFromDatabase) != 0:
                 self.labelNames.append([x.capitalize() for x in songDataFromDatabase[0]])
-                toWrite = songDataFromDatabase[0]
-            else:
-                songDataFromFile = [x.capitalize() for x in MusicEventHandler.getSongData(song)]
-                self.databaseObject.writeSongDataToTable(song, *songDataFromFile)
-                self.labelNames.append(songDataFromFile)
-
+            
         for i in range(len(self.labelNames)):
             for j in range(len(self.labelNames[0])):
                 item = QTableWidgetItem(self.labelNames[i][j])
