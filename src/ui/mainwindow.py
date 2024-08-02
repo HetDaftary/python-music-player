@@ -86,16 +86,13 @@ class MainWindow(QMainWindow):
         self.closeEvent(0)
 
     def initFonts(self):
-        font_id = QFontDatabase.addApplicationFont("data/fonts/Aller_Rg.ttf")
+        fontId = QFontDatabase.addApplicationFont("data/fonts/Aller_Rg.ttf")
 
         # Check if font loading was successful (optional)
-        if font_id != -1:
-            print("Font loaded successfully")
-        else:
+        if fontId == -1:
             print("Failed to load font!")
 
     def initStyleSheet(self):
         with open('data/css/dark.css', 'r') as f:
             stylesheet = f.read()
             self.app.setStyleSheet(stylesheet)
-        #self.mainWidget.topWidget.resizeColumnsToContents()

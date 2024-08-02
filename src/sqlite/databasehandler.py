@@ -16,6 +16,13 @@ class DatabaseHandler:
         for i in createTableSyntax:
             self.executeSqlQuery(i)
 
+    def getPlaylists(self):
+        query="SELECT playlistName FROM playlistNameToPlaylistId"
+        return [x[0] for x in self.executeSqlQuery(query)]
+
+    def addPlaylist(self, playlistName):
+        self.getPlaylistIdFromName(playlistName)
+
     def getPlaylistIdFromName(self, playlistName):
         query=f"SELECT playlistId from playlistNameToPlaylistId WHERE playlistName=\"{playlistName}\";"
         playlistIdList = self.executeSqlQuery(query)

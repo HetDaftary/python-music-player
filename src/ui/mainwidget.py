@@ -34,6 +34,7 @@ class MainWidget(QWidget):
         self.parent = parent
 
         self.songIndex = -1
+        self.selectedPlaylist = "library"
 
         self.currentTheme = "dark.css"
 
@@ -55,13 +56,11 @@ class MainWidget(QWidget):
         self.layout.addWidget(self.topWidget)
         self.layout.addWidget(self.bottomWidget)
 
-        self.selectedPlaylist = "library"
-
         # Start music handler threads
         self.musicEventHandler.start()
 
     def getSongs(self):
-        return self.databaseObject.getSongs(self.selectedPlaylistName)
+        return self.databaseObject.getSongs(self.selectedPlaylist)
 
     def initTopWidget(self):
         self.topWidget = TopWidget(self)
@@ -180,6 +179,8 @@ class MainWidget(QWidget):
 
     @pyqtSlot()
     def refreshTopWidget(self):
+        print("called refresh top widget")
+        print(self.databaseObject.getSongs(self.selectedPlaylist))
         self.topWidget.refreshPage(self.databaseObject.getSongs(self.selectedPlaylist))
         self.parent.show()
 
@@ -236,8 +237,8 @@ class MainWidget(QWidget):
 
             if not os.path.exists(toPath):
                 shutil.copy(filePath, toPath)
-                self.databaseObject.writeSongDataToTable(self.selectedPlaylist, toPath, *self.musicEventHandler.getSongData(toPath))
-
+        
+        self.databaseObject.writeSongDataToTable(self.selectedPlaylist, toPath, *self.musicEventHandler.getSongData(toPath))
         self.refreshTopWidget()
     
     def addSong(self):
