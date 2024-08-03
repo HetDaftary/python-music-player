@@ -85,10 +85,11 @@ class TopWidget(QTableWidget):
     def contextMenuEvent(self, event):
         self.menuOnRightClick = QMenu(self)
 
-        self.addSongAction = QAction("Add a song")
-        self.deleteSongAction = QAction("Delete a song")
+        self.addSongAction = QAction("Add song to library")
+        self.deleteSongAction = QAction("Delete currently selected song")
 
         self.menuOnRightClick.addAction(self.addSongAction)
+        self.menuOnRightClick.addSeparator()
         self.menuOnRightClick.addAction(self.deleteSongAction)
         
         self.addSongAction.triggered.connect(lambda _: self.parent.addSong())
