@@ -51,8 +51,8 @@ class MainWindow(QMainWindow):
         
         self.openSongAction = QAction("Open and play a song")
         self.exitAppAction = QAction("Close")
-        self.addSongAction = QAction("Add a song")
-        self.deleteSongAction = QAction("Delete a song")
+        self.addSongAction = QAction("Add song to library")
+        self.deleteSongAction = QAction("Delete currently selected song")
 
         self.fileMenu.addAction(self.openSongAction)
         self.fileMenu.addAction(self.exitAppAction)
