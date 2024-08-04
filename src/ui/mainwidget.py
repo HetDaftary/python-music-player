@@ -34,7 +34,7 @@ class MainWidget(QWidget):
         self.parent = parent
 
         self.songIndex = -1
-        self.selectedPlaylist = "library"
+        self.selectedPlaylist = "Library"
 
         self.currentTheme = "dark.css"
 
@@ -244,6 +244,17 @@ class MainWidget(QWidget):
         filePath, _ = self.getOpenFileName("Add a song")
         if filePath != "" and filePath != None:
             self.addSongWithPath(filePath)
+
+    def addToPlaylist(self, playlistName):
+        collectRows = set()
+        for i in self.topWidget.selectedItems():
+            collectRows.add(i.row())
+        
+        songs = self.databaseObject.getSongs(self.selectedPlaylist)
+        
+        for i in collectRows:
+            songName = songs[i]
+            self.databaseObject.addToPlaylist(playlistName, songName)
 
     def deleteSong(self):
         songs = self.databaseObject.getSongs(self.selectedPlaylist)

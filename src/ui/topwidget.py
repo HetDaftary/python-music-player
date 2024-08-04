@@ -84,13 +84,25 @@ class TopWidget(QTableWidget):
         self.menuOnRightClick = QMenu(self)
 
         self.addSongAction = QAction("Add song to library")
-        self.deleteSongAction = QAction("Delete currently selected song")
-
-        self.menuOnRightClick.addAction(self.addSongAction)
-        self.menuOnRightClick.addSeparator()
-        self.menuOnRightClick.addAction(self.deleteSongAction)
-        
         self.addSongAction.triggered.connect(lambda _: self.parent.addSong())
+        self.menuOnRightClick.addAction(self.addSongAction)
+
+        if self.parent.selectedPlaylist == "Library":
+            self.addToPlaylistAction = QMenu("Add to playlist")
+
+            self.actions = []
+
+            for playlistName in self.parent.parent.leftPanel.getPlaylists():
+                self.actions.append(QAction(playlistName))
+                self.addToPlaylistAction.addAction(self.actions[-1])
+                self.actions[-1].triggered.connect(lambda _: self.parent.addToPlaylist(playlistName))
+
+            self.menuOnRightClick.addMenu(self.addToPlaylistAction)
+
+        self.menuOnRightClick.addSeparator()
+        
+        self.deleteSongAction = QAction("Delete currently selected song")
         self.deleteSongAction.triggered.connect(lambda _: self.parent.deleteSong())
+        self.menuOnRightClick.addAction(self.deleteSongAction)
 
         self.menuOnRightClick.exec_(event.globalPos())

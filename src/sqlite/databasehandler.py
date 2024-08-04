@@ -59,6 +59,13 @@ class DatabaseHandler:
             self.executeSqlQuery(query)
             return songIdList[0][0]
 
+    def addToPlaylist(self, playlistName, songName):
+        playlistId = self.getPlaylistIdFromName(playlistName)
+        songId = self.getSongIdFromSongName(songName)
+
+        query = f"INSERT or REPLACE into playlistIdToSongId(playlistId, songId) VALUES ({playlistId}, {songId});"
+        self.executeSqlQuery(query)
+
     def writeSongDataToTable(self, playlistName, songName, title, artist, album, year, genre, comment):
         songId = self.getSongIdFromSongName(songName)
         playlistId = self.getPlaylistIdFromName(playlistName)
