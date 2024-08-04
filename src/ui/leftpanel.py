@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem, QInputDialog, QMessageBox, QMenu, QAction
+from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem, QInputDialog, QMessageBox, QMenu, QAction, QAbstractItemView
 from PyQt5.QtCore import Qt
 
 class LeftPanel(QTreeWidget):
@@ -8,6 +8,7 @@ class LeftPanel(QTreeWidget):
         super(LeftPanel, self).__init__(parent)
         self.parent = parent
         self.setHeaderHidden(True)
+        self.setSelectionMode(QAbstractItemView.SingleSelection)
 
         self.currentlySelectedPlaylist = "Library"
 
@@ -59,14 +60,16 @@ class LeftPanel(QTreeWidget):
             else:
                 buttonPressed = QMessageBox.critical(self, "Cannot delete playlist", "Cannot delete library or playlist options")
 
-        if self.currentlySelectedPlaylist == self.parent.mainWidget.selectedPlaylist:
+        print(self.currentlySelectedPlaylist, self.parent.mainWidget.selectedPlaylist)
+        if playlistName == self.parent.mainWidget.selectedPlaylist.capitalize():
             self.parent.mainWidget.selectedPlaylist = "Library"
             self.parent.mainWidget.refreshTopWidget()
+            self.libraryItem.setSelected(True)
 
     def onItemDoubleClicked(self):
         # Do something with the selected item
         itemText = self.currentlySelectedPlaylist
-        if itemText != "playlist":
+        if itemText != "Playlist":
             self.parent.mainWidget.selectedPlaylist = itemText
             self.parent.mainWidget.refreshTopWidget()
 
