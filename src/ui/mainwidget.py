@@ -9,7 +9,6 @@ from PyQt5.QtGui import QIcon, QColor
 # Importing necessary classes for UI
 from ui.bottomwidget import BottomWidget
 from ui.topwidget import TopWidget
-from ui.deleteSongWidget import DeleteSongWidget
 
 # Importing necessary classes for handling music
 from mp3.musicEventHandler import MusicEventHandler
@@ -24,7 +23,8 @@ class MainWidget(QWidget):
     SWITCH_TO_RESUME = 12
     SONG_PLAYING_CODE = 13 # For the signal to tell about which song is playing.
     REFRESH_SONGS_SIGNAL = 14
-    CUSTOM_SIGNAL = pyqtSignal(int, name = "playPauseHandle") # Signal to throw for making event.
+    SET_VOLUME = 15
+    MUSIC_CONTROL_SIGNAL = pyqtSignal(int, name = "playPauseHandle") # Signal to throw for making event.
     songPlayingSignal = pyqtSignal(int, str, name = "tellsWhichSongIsPlaying") # tells which song is getting played
     REFRESH_TOP_WIDGET_SIGNAL = pyqtSignal(name = "refreshTopWidget") # Refreshes top widget
     DESELECT_SONG_ON_TABLE = pyqtSignal(name = "deselectTheSelectSong")
@@ -75,7 +75,7 @@ class MainWidget(QWidget):
         self.initButtonActions()
 
         # Init slot for play pause button.
-        self.CUSTOM_SIGNAL.connect(self.handlePlayPauseButton)
+        self.MUSIC_CONTROL_SIGNAL.connect(self.handlePlayPauseButton)
 
         # Init song title showing signal
         self.songPlayingSignal.connect(self.handleSongPlaying)
@@ -90,6 +90,7 @@ class MainWidget(QWidget):
         self.bottomWidget.playPauseButton.clicked.connect(self.playPauseButtonAction)  
         self.bottomWidget.nextButton.clicked.connect(self.nextButtonAction)
         self.bottomWidget.stopButton.clicked.connect(self.stopButtonAction)
+        self.bottomWidget.volumeSlider.valueChanged.connect(lambda _: self.musicEventHandler.VOLUME_SIGNAL.emit(self.musicEventHandler.SET_VOLUME, self.bottomWidget.volumeSlider.value()))
 
     def playSelectedButtonAction(self):
         if self.topWidget.songSelectedByUser == -1:
@@ -107,14 +108,14 @@ class MainWidget(QWidget):
             self.songIndex = 0
             self.musicEventHandler.PLAY_NEW_SIGNAL.emit(MusicEventHandler.PLAY_SELECTED, self.topWidget.songs[self.songIndex])
         else:
-            self.musicEventHandler.CUSTOM_SIGNAL.emit(MusicEventHandler.PLAY_PAUSE)
+            self.musicEventHandler.MUSIC_CONTROL_SIGNAL.emit(MusicEventHandler.PLAY_PAUSE)
 
     def nextButtonAction(self):
         self.songIndex = ((self.songIndex + 1) % len(self.topWidget.songs)) if self.songIndex != -1 else 0
         self.musicEventHandler.PLAY_NEW_SIGNAL.emit(MusicEventHandler.PLAY_SELECTED, self.topWidget.songs[self.songIndex])
 
     def stopButtonAction(self):
-        self.musicEventHandler.CUSTOM_SIGNAL.emit(MusicEventHandler.STOP)
+        self.musicEventHandler.MUSIC_CONTROL_SIGNAL.emit(MusicEventHandler.STOP)
 
     @pyqtSlot(int, str)
     def handleSongPlaying(self, value, songName):

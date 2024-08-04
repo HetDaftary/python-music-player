@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QSizePolicy, QLabel
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QSizePolicy, QLabel, QSlider
 from PyQt5.QtCore import QSize, Qt
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QPixmap
 
 class BottomWidget(QWidget):
     def __init__(self, parent = None):
@@ -55,5 +55,18 @@ class BottomWidget(QWidget):
         self.stopButton.setIconSize(QSize(32, 32))
         self.stopButton.setFixedSize(QSize(48, 48))
         self.buttonsLayout.addWidget(self.stopButton)
+
+        self.volumeIcon = QLabel()
+        self.volumeIcon.setPixmap(QPixmap("data/icons/speaker.png").scaled(32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        self.volumeIcon.setFixedSize(QSize(48, 48))
+        self.volumeIcon.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+        self.buttonsLayout.addWidget(self.volumeIcon)
+
+        self.volumeSlider = QSlider(self.buttonsWidget)
+        self.volumeSlider.setOrientation(Qt.Horizontal)
+        self.volumeSlider.setRange(0, 100)
+        self.volumeSlider.setValue(60)
+        self.volumeSlider.setMaximumWidth(100)
+        self.buttonsLayout.addWidget(self.volumeSlider)
 
         self.layout.addWidget(self.buttonsWidget)

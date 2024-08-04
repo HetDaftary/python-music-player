@@ -16,11 +16,13 @@ class MusicEventHandler(QThread):
     PLAY_SONG_NOT_IN_LIB = 6
     ADD_A_SONG = 7
     DELETE_A_SONG = 8
+    SET_VOLUME = 10
 
     SONG_END = pygame.USEREVENT # If song automatically ends.
 
-    CUSTOM_SIGNAL = pyqtSignal(int, name = "musicPlayer") # Signal to throw for making event.
-    PLAY_NEW_SIGNAL = pyqtSignal(int, str, name = "playNewSignal")
+    MUSIC_CONTROL_SIGNAL = pyqtSignal(int, name = "musicPlayer") # Play/pause and stop music playing.
+    PLAY_NEW_SIGNAL = pyqtSignal(int, str, name = "playNewSignal") # To play a song using it's filepath.
+    VOLUME_SIGNAL = pyqtSignal(int, int, name = "setVolume") # To set volume to any value.
     
     def __init__(self, parent = None) -> None:
         super().__init__(parent)
@@ -35,8 +37,9 @@ class MusicEventHandler(QThread):
         self.songName = ""
         self.volume = 0.6
 
-        self.CUSTOM_SIGNAL.connect(self.eventHandlerInt)
+        self.MUSIC_CONTROL_SIGNAL.connect(self.eventHandlerInt)
         self.PLAY_NEW_SIGNAL.connect(self.playNewSlot)
+        self.VOLUME_SIGNAL.connect(self.setVolumeSlot)
     
     def playPause(self):
         if self.songName != None and self.songName != "":
@@ -56,7 +59,7 @@ class MusicEventHandler(QThread):
         pygame.mixer.music.stop()
         self.isPlaying = False
         
-        self.parent.CUSTOM_SIGNAL.emit(self.parent.SWITCH_TO_RESUME)
+        self.parent.MUSIC_CONTROL_SIGNAL.emit(self.parent.SWITCH_TO_RESUME)
         self.parent.DESELECT_SONG_ON_TABLE.emit()
         self.parent.songPlayingSignal.emit(self.parent.SONG_PLAYING_CODE, "")
 
@@ -70,7 +73,7 @@ class MusicEventHandler(QThread):
             pygame.mixer.music.set_endevent(self.SONG_END)
             self.setVolume(self.volume)
             self.parent.songPlayingSignal.emit(self.parent.SONG_PLAYING_CODE, songName)
-            self.parent.CUSTOM_SIGNAL.emit(self.parent.SWITCH_TO_PAUSE)
+            self.parent.MUSIC_CONTROL_SIGNAL.emit(self.parent.SWITCH_TO_PAUSE)
         except Exception as e:
             print("Caught exception", e)
             return None
@@ -122,9 +125,9 @@ class MusicEventHandler(QThread):
         if value == MusicEventHandler.PLAY_PAUSE:
             self.playPause()
             if self.isPlaying:
-                self.parent.CUSTOM_SIGNAL.emit(self.parent.SWITCH_TO_PAUSE)
+                self.parent.MUSIC_CONTROL_SIGNAL.emit(self.parent.SWITCH_TO_PAUSE)
             else:
-                self.parent.CUSTOM_SIGNAL.emit(self.parent.SWITCH_TO_RESUME)
+                self.parent.MUSIC_CONTROL_SIGNAL.emit(self.parent.SWITCH_TO_RESUME)
         elif value == MusicEventHandler.STOP:
             self.stopSong()
             
@@ -132,4 +135,8 @@ class MusicEventHandler(QThread):
     def playNewSlot(self, value, songName):
         if value == MusicEventHandler.PLAY_SELECTED:
             self.playNew(songName)
-            self.parent.CUSTOM_SIGNAL.emit(self.parent.SWITCH_TO_PAUSE)
+            self.parent.MUSIC_CONTROL_SIGNAL.emit(self.parent.SWITCH_TO_PAUSE)
+
+    @pyqtSlot(int, int)
+    def setVolumeSlot(self, value, volume):
+        self.setVolume(volume / 100)

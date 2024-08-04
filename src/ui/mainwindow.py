@@ -1,6 +1,6 @@
 import sys
 
-from PyQt5.QtWidgets import QMainWindow, QMenu, QAction, QMenuBar, QApplication, QSplitter
+from PyQt5.QtWidgets import QMainWindow, QMenu, QAction, QMenuBar, QApplication, QSplitter, QWidget, QVBoxLayout
 from PyQt5.QtGui import QFontDatabase
 from PyQt5.QtCore import Qt
 
@@ -18,6 +18,10 @@ class MainWindow(QMainWindow):
         screenSize = self.app.primaryScreen().size() 
         self.resize(screenSize.width() // 2, screenSize.height() // 2)
 
+        self.centralWidget = QWidget(self)
+        self.layout = QVBoxLayout()
+        self.centralWidget.setLayout(self.layout)
+
         # Set main widget
         self.mainWidget = MainWidget(self)
         self.leftPanel = LeftPanel(self.mainWidget.databaseObject, self)
@@ -31,7 +35,9 @@ class MainWindow(QMainWindow):
         self.splitter.setStretchFactor(0, 1)
         self.splitter.setStretchFactor(1, 7)
 
-        self.setCentralWidget(self.splitter)
+        self.layout.addWidget(self.splitter)
+
+        self.setCentralWidget(self.centralWidget)
 
         # Init fonts
         self.initFonts()

@@ -52,10 +52,12 @@ class LeftPanel(QTreeWidget):
         if ok:
             playlists = self.getPlaylists()
 
-            if playlistName.lower() != "library" and playlistName not in playlists:
+            playlistName = playlistName.capitalize()
+            if playlistName != "Library" and playlistName not in playlists:
                 self.playlistItem.addChild(QTreeWidgetItem([playlistName]))
+                self.parent.mainWidget.selectedPlaylist = playlistName
+                self.parent.mainWidget.databaseObject.addPlaylist(playlistName)
+                self.parent.mainWidget.refreshTopWidget()
             else:
                 self.errorMessage = QMessageBox.critical(self, "Playlist name error", "Playlist name cannot be library or any existing playlist")
-
-        self.parent.mainWidget.databaseObject.addPlaylist(playlistName)
-        self.parent.mainWidget.refreshTopWidget()
+        

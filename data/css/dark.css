@@ -55,3 +55,11 @@ QScrollBar {
 QTreeWidget {
     border: 1px solid #448aff;
 }
+
+QSlider::groove:horizontal {
+    border:1px solid #448aff;
+}
+
+QSlider::sub-page:horizontal {
+    background-color: #448aff;
+}

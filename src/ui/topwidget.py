@@ -63,8 +63,6 @@ class TopWidget(QTableWidget):
                     # Only allow comments to be editable
                     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
 
-        #self.resizeColumnsToContents()
-
     def handleCellClicked(self, i, j):
         self.songSelectedByUser = i
 
