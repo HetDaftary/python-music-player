@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QMainWindow, QMenu, QAction, QMenuBar, QApplication,
 from PyQt5.QtGui import QFontDatabase
 from PyQt5.QtCore import Qt
 
+from ui.filemenu import FileMenu
 from ui.mainwidget import MainWidget
 from ui.leftpanel import LeftPanel
 
@@ -61,33 +62,9 @@ class MainWindow(QMainWindow):
 
     def initMenu(self):
         self.menubar = QMenuBar(self)
-
-        self.fileMenu = QMenu("File")
-        
-        self.openSongAction = QAction("Open and play a song")
-        self.exitAppAction = QAction("Close")
-
-        self.addSongAction = QAction("Add song to library")
-        self.deleteSongAction = QAction("Delete currently selected song")
-        self.createPlaylistAction = QAction("Create a playlist")
-
-        self.fileMenu.addAction(self.openSongAction)
-        self.fileMenu.addAction(self.exitAppAction)
-        self.fileMenu.addSeparator()
-        self.fileMenu.addAction(self.addSongAction)
-        self.fileMenu.addAction(self.deleteSongAction)
-        self.fileMenu.addSeparator()
-        self.fileMenu.addAction(self.createPlaylistAction)
-
+        self.fileMenu = FileMenu("File", self)
         self.menubar.addMenu(self.fileMenu)
-
         self.setMenuBar(self.menubar)
-
-        self.openSongAction.triggered.connect(self.mainWidget.openAndPlayAMp3)
-        self.exitAppAction.triggered.connect(self.closeAppMenuAction)
-        self.addSongAction.triggered.connect(self.mainWidget.addSong)
-        self.deleteSongAction.triggered.connect(self.mainWidget.deleteSong)
-        self.createPlaylistAction.triggered.connect(self.leftPanel.createPlaylist)
 
     def closeAppMenuAction(self):
         self.closeEvent(0)
