@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem, QInputDialog, QMessageBox
+from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem, QInputDialog, QMessageBox, QMenu, QAction
 from PyQt5.QtCore import Qt
 
 class LeftPanel(QTreeWidget):
@@ -16,7 +16,48 @@ class LeftPanel(QTreeWidget):
         self.itemDoubleClicked.connect(self.onItemDoubleClicked)
 
     def onItemSelected(self):
-        pass
+        selectedItem = self.currentItem()
+        if selectedItem:
+            # Do something with the selected item
+            self.parent.mainWidget.selectedPlaylist = selectedItem.text(0).capitalize()
+
+    def contextMenuEvent(self, event):
+        contextMenu = QMenu(self)
+
+        openInNewWindowAction = QAction('Open in New Window', self)
+        #openInNewWindowAction.triggered.connect(lambda: self.action_triggered('Action 1'))
+        contextMenu.addAction(openInNewWindowAction)
+
+        contextMenu.addSeparator()
+
+        deletePlaylistAction = QAction('Delete Playlist', self)
+        deletePlaylistAction.triggered.connect(self.deletePlaylist)
+        contextMenu.addAction(deletePlaylistAction)
+
+        contextMenu.exec_(event.globalPos())
+
+    def deletePlaylist(self):
+        playlistWidget = self.currentItem()
+        if playlistWidget:
+            playlistName = self.parent.mainWidget.selectedPlaylist
+            playlistName = playlistName.capitalize()
+            if playlistName != "Library" and playlistName != "Playlist":
+                buttonPressed = QMessageBox.warning(self, "Confirm to delete playlist", f"Do you want to delete playlist: {playlistName}?", QMessageBox.Yes | QMessageBox.No)
+                if buttonPressed == QMessageBox.Yes:
+                    self.libraryItem.setSelected(True)
+                    self.parent.mainWidget.selectedPlaylist = "Library"
+
+                    self.parent.mainWidget.databaseObject.deletePlaylist(playlistName)
+
+                    index = self.indexOfTopLevelItem(playlistWidget)
+                    if index != -1:
+                        self.takeTopLevelItem(index)
+                    else:
+                        parent = playlistWidget.parent()
+                        if parent:
+                            parent.takeChild(parent.indexOfChild(playlistWidget))
+            else:
+                buttonPressed = QMessageBox.critical(self, "Cannot delete playlist", "Cannot delete library or playlist options")
 
     def onItemDoubleClicked(self):
         selectedItem = self.currentItem()
@@ -25,7 +66,6 @@ class LeftPanel(QTreeWidget):
             itemText = selectedItem.text(0).lower()
             if itemText != "playlist":
                 self.parent.mainWidget.selectedPlaylist = itemText
-                print(self.parent.mainWidget.selectedPlaylist)
                 self.parent.mainWidget.refreshTopWidget()
 
     def initLibrarySongs(self):
@@ -49,15 +89,16 @@ class LeftPanel(QTreeWidget):
 
     def createPlaylist(self):
         playlistName, ok = QInputDialog.getText(self, "Add Playlist", "Enter playlist name:")
+        playlistName = playlistName.capitalize()
         if ok:
             playlists = self.getPlaylists()
 
             playlistName = playlistName.capitalize()
-            if playlistName != "Library" and playlistName not in playlists:
+            if playlistName != "Library" and playlistName != "Playlist" and playlistName not in playlists:
                 self.playlistItem.addChild(QTreeWidgetItem([playlistName]))
                 self.parent.mainWidget.selectedPlaylist = playlistName
                 self.parent.mainWidget.databaseObject.addPlaylist(playlistName)
                 self.parent.mainWidget.refreshTopWidget()
             else:
-                self.errorMessage = QMessageBox.critical(self, "Playlist name error", "Playlist name cannot be library or any existing playlist")
+                self.errorMessage = QMessageBox.critical(self, "Playlist name error", "Playlist name cannot be library, playlist or any existing playlist")
         

@@ -180,8 +180,6 @@ class MainWidget(QWidget):
 
     @pyqtSlot()
     def refreshTopWidget(self):
-        print("called refresh top widget")
-        print(self.databaseObject.getSongs(self.selectedPlaylist))
         self.topWidget.refreshPage(self.databaseObject.getSongs(self.selectedPlaylist))
         self.parent.show()
 

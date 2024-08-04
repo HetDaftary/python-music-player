@@ -23,8 +23,16 @@ class DatabaseHandler:
     def addPlaylist(self, playlistName):
         self.getPlaylistIdFromName(playlistName)
 
+    def deletePlaylist(self, playlistName):
+        playlistId = self.getPlaylistIdFromName(playlistName)
+        
+        query = f"DELETE FROM playlistNameToPlaylistId WHERE playlistName=\"{playlistName}\";"
+        self.executeSqlQuery(query)
+        query = f"DELETE FROM playlistIdToSongId WHERE playlistId={playlistId};"
+        self.executeSqlQuery(query)
+
     def getPlaylistIdFromName(self, playlistName):
-        query=f"SELECT playlistId from playlistNameToPlaylistId WHERE playlistName=\"{playlistName}\";"
+        query = f"SELECT playlistId from playlistNameToPlaylistId WHERE playlistName=\"{playlistName}\";"
         playlistIdList = self.executeSqlQuery(query)
 
         if playlistIdList != None and len(playlistIdList) != 0:
@@ -99,7 +107,6 @@ class DatabaseHandler:
         :param sql_query: SQL query string to execute
         :return: Result of the query if it is a SELECT statement, otherwise None
         """
-        #print(query)
         try:
             self.cur.execute(query)
 
