@@ -9,6 +9,8 @@ class LeftPanel(QTreeWidget):
         self.parent = parent
         self.setHeaderHidden(True)
 
+        self.currentlySelectedPlaylist = "Library"
+
         self.initLibrarySongs()
         self.initPlaylistSongs()
 
@@ -19,7 +21,7 @@ class LeftPanel(QTreeWidget):
         selectedItem = self.currentItem()
         if selectedItem:
             # Do something with the selected item
-            self.parent.mainWidget.selectedPlaylist = selectedItem.text(0).capitalize()
+            self.currentlySelectedPlaylist = selectedItem.text(0).capitalize()
 
     def contextMenuEvent(self, event):
         contextMenu = QMenu(self)
@@ -60,13 +62,11 @@ class LeftPanel(QTreeWidget):
                 buttonPressed = QMessageBox.critical(self, "Cannot delete playlist", "Cannot delete library or playlist options")
 
     def onItemDoubleClicked(self):
-        selectedItem = self.currentItem()
-        if selectedItem:
-            # Do something with the selected item
-            itemText = selectedItem.text(0).lower()
-            if itemText != "playlist":
-                self.parent.mainWidget.selectedPlaylist = itemText
-                self.parent.mainWidget.refreshTopWidget()
+        # Do something with the selected item
+        itemText = self.currentlySelectedPlaylist
+        if itemText != "playlist":
+            self.parent.mainWidget.selectedPlaylist = itemText
+            self.parent.mainWidget.refreshTopWidget()
 
     def initLibrarySongs(self):
         self.libraryItem = QTreeWidgetItem(["Library"])
