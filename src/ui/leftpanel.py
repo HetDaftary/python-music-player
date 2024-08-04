@@ -41,14 +41,12 @@ class LeftPanel(QTreeWidget):
     def deletePlaylist(self):
         playlistWidget = self.currentItem()
         if playlistWidget:
-            playlistName = self.parent.mainWidget.selectedPlaylist
+            playlistName = self.currentlySelectedPlaylist
             playlistName = playlistName.capitalize()
             if playlistName != "Library" and playlistName != "Playlist":
                 buttonPressed = QMessageBox.warning(self, "Confirm to delete playlist", f"Do you want to delete playlist: {playlistName}?", QMessageBox.Yes | QMessageBox.No)
                 if buttonPressed == QMessageBox.Yes:
                     self.libraryItem.setSelected(True)
-                    self.parent.mainWidget.selectedPlaylist = "Library"
-
                     self.parent.mainWidget.databaseObject.deletePlaylist(playlistName)
 
                     index = self.indexOfTopLevelItem(playlistWidget)
@@ -60,6 +58,10 @@ class LeftPanel(QTreeWidget):
                             parent.takeChild(parent.indexOfChild(playlistWidget))
             else:
                 buttonPressed = QMessageBox.critical(self, "Cannot delete playlist", "Cannot delete library or playlist options")
+
+        if self.currentlySelectedPlaylist == self.parent.mainWidget.selectedPlaylist:
+            self.parent.mainWidget.selectedPlaylist = "Library"
+            self.parent.mainWidget.refreshTopWidget()
 
     def onItemDoubleClicked(self):
         # Do something with the selected item
