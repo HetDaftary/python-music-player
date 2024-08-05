@@ -3,49 +3,29 @@ import os
 import shutil
 
 from PyQt5.QtWidgets import QVBoxLayout, QWidget, QMessageBox, QFileDialog
-from PyQt5.QtCore import QSize, pyqtSignal, pyqtSlot, QDir
+from PyQt5.QtCore import QSize, QDir
 from PyQt5.QtGui import QIcon, QColor
 
 # Importing necessary classes for UI
 from ui.bottomwidget import BottomWidget
 from ui.topwidget import TopWidget
 
-# Importing necessary classes for handling music
-from mp3.musicEventHandler import MusicEventHandler
-
-# Import necessary classes for handling database
-from sqlite.databasehandler import DatabaseHandler
-
 class MainWidget(QWidget):
-    MUSIC_PATH="data/mp3-files" # This is a static variable of this class.
-    SWITCH_TO_RESUME = 10 # Values to change UI play pause button. 
-    SWITCH_TO_PAUSE = 11 # These will be catched by slots in UI/main thread.
-    SWITCH_TO_RESUME = 12
-    SONG_PLAYING_CODE = 13 # For the signal to tell about which song is playing.
-    REFRESH_SONGS_SIGNAL = 14
-    SET_VOLUME = 15
-    MUSIC_CONTROL_SIGNAL = pyqtSignal(int, name = "playPauseHandle") # Signal to throw for making event.
-    songPlayingSignal = pyqtSignal(int, str, name = "tellsWhichSongIsPlaying") # tells which song is getting played
-    REFRESH_TOP_WIDGET_SIGNAL = pyqtSignal(name = "refreshTopWidget") # Refreshes top widget
-    DESELECT_SONG_ON_TABLE = pyqtSignal(name = "deselectTheSelectSong")
-
-    def __init__(self, parent = None):
+    def __init__(self, databaseObject, musicEventHandler, parent = None):
         super().__init__()
         self.parent = parent
 
         self.songIndex = -1
-        self.selectedPlaylist = "Library"
-
         self.currentTheme = "dark.css"
 
-        self.databaseObject = DatabaseHandler()
+        self.databaseObject = databaseObject
 
         # Set layout
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
 
         # Setup music handler threads
-        self.musicEventHandler = MusicEventHandler(self)
+        self.musicEventHandler = musicEventHandler
 
         # Add bottom panel
         self.initBottomWidget()
@@ -60,27 +40,17 @@ class MainWidget(QWidget):
         self.musicEventHandler.start()
 
     def getSongs(self):
-        return self.databaseObject.getSongs(self.selectedPlaylist)
+        return self.databaseObject.getSongs(self.parent.selectedPlaylist)
 
     def initTopWidget(self):
         self.topWidget = TopWidget(self)
-
-        self.DESELECT_SONG_ON_TABLE.connect(self.handleDeselectSong)
-        #self.topWidget.itemChanged.connect(self.changeSongMetaData)
-        self.REFRESH_TOP_WIDGET_SIGNAL.connect(self.refreshTopWidget)
 
     def initBottomWidget(self):
         self.bottomWidget = BottomWidget(self)
         
         self.initButtonActions()
 
-        # Init slot for play pause button.
-        self.MUSIC_CONTROL_SIGNAL.connect(self.handlePlayPauseButton)
-
-        # Init song title showing signal
-        self.songPlayingSignal.connect(self.handleSongPlaying)
-
-    @pyqtSlot()
+    #@pyqtSlot()
     def handleDeselectSong(self):
         self.topWidget.clearSelection()
         
@@ -96,28 +66,28 @@ class MainWidget(QWidget):
         if self.topWidget.songSelectedByUser == -1:
             QMessageBox.information(self, "Select song", "Please select a song before trying to use this button")
         else:
-            self.musicEventHandler.PLAY_NEW_SIGNAL.emit(MusicEventHandler.PLAY_SELECTED, self.topWidget.songs[self.topWidget.songSelectedByUser])  
+            self.musicEventHandler.PLAY_NEW_SIGNAL.emit(self.musicEventHandler.PLAY_SELECTED, self.topWidget.songs[self.topWidget.songSelectedByUser])  
             self.songIndex = self.topWidget.songSelectedByUser
 
     def previousButtonAction(self):
         self.songIndex = ((self.songIndex + 1) % len(self.topWidget.songs)) if self.songIndex != -1 else len(self.topWidget.songs) -1
-        self.musicEventHandler.PLAY_NEW_SIGNAL.emit(MusicEventHandler.PLAY_SELECTED, self.topWidget.songs[self.songIndex]) 
+        self.musicEventHandler.PLAY_NEW_SIGNAL.emit(self.musicEventHandler.PLAY_SELECTED, self.topWidget.songs[self.songIndex]) 
 
     def playPauseButtonAction(self):
         if self.songIndex == -1:
             self.songIndex = 0
-            self.musicEventHandler.PLAY_NEW_SIGNAL.emit(MusicEventHandler.PLAY_SELECTED, self.topWidget.songs[self.songIndex])
+            self.musicEventHandler.PLAY_NEW_SIGNAL.emit(self.musicEventHandler.PLAY_SELECTED, self.topWidget.songs[self.songIndex])
         else:
-            self.musicEventHandler.MUSIC_CONTROL_SIGNAL.emit(MusicEventHandler.PLAY_PAUSE)
+            self.musicEventHandler.MUSIC_CONTROL_SIGNAL.emit(self.musicEventHandler.PLAY_PAUSE)
 
     def nextButtonAction(self):
         self.songIndex = ((self.songIndex + 1) % len(self.topWidget.songs)) if self.songIndex != -1 else 0
-        self.musicEventHandler.PLAY_NEW_SIGNAL.emit(MusicEventHandler.PLAY_SELECTED, self.topWidget.songs[self.songIndex])
+        self.musicEventHandler.PLAY_NEW_SIGNAL.emit(self.musicEventHandler.PLAY_SELECTED, self.topWidget.songs[self.songIndex])
 
     def stopButtonAction(self):
-        self.musicEventHandler.MUSIC_CONTROL_SIGNAL.emit(MusicEventHandler.STOP)
+        self.musicEventHandler.MUSIC_CONTROL_SIGNAL.emit(self.musicEventHandler.STOP)
 
-    @pyqtSlot(int, str)
+    #@pyqtSlot(int, str)
     def handleSongPlaying(self, value, songName):
         songTitle = ""
         if songName != "" and songName != None:
@@ -125,13 +95,13 @@ class MainWidget(QWidget):
             if len(songData) != 0:
                 songTitle = songData[0][0]
             else:
-                songData = MusicEventHandler.getSongData(songName)
+                songData = self.musicEventHandler.getSongData(songName)
                 songTitle = songData[0]
 
         self.bottomWidget.songPlayingLabel.setText(f"Playing song : {songTitle}" if songTitle != "" else "")
         self.setSongPlayingSignalButtonBorder()
 
-        songs = self.databaseObject.getSongs(self.selectedPlaylist)
+        songs = self.databaseObject.getSongs(self.parent.selectedPlaylist)
 
         for i in range(len(songs)):
             if songName == songs[i]:
@@ -178,34 +148,34 @@ class MainWidget(QWidget):
                                                              """)
     
 
-    @pyqtSlot()
+    #@pyqtSlot()
     def refreshTopWidget(self):
-        self.topWidget.refreshPage(self.databaseObject.getSongs(self.selectedPlaylist))
+        self.topWidget.refreshPage(self.databaseObject.getSongs(self.parent.selectedPlaylist))
         self.parent.show()
 
-    @pyqtSlot(int)
+    #@pyqtSlot(int)
     def handlePlayPauseButton(self, value):
-        if value == MainWidget.SWITCH_TO_PAUSE:
+        if value == self.parent.SWITCH_TO_PAUSE:
             self.bottomWidget.playPauseButton.setIcon(QIcon("data/icons/pause.png"))
-            self.playButtonState = MainWidget.SWITCH_TO_PAUSE
-        elif value == MainWidget.SWITCH_TO_RESUME:
+            self.playButtonState = self.parent.SWITCH_TO_PAUSE
+        elif value == self.parent.SWITCH_TO_RESUME:
             self.bottomWidget.playPauseButton.setIcon(QIcon("data/icons/resume.png"))
-            self.playButtonState = MainWidget.SWITCH_TO_RESUME
+            self.playButtonState = self.parent.SWITCH_TO_RESUME
         else:
             self.bottomWidget.playPauseButton.setIcon(QIcon("data/icons/play.png"))
-            self.playButtonState = MainWidget.SWITCH_TO_RESUME
+            self.playButtonState = self.parent.SWITCH_TO_RESUME
         self.bottomWidget.playPauseButton.setIconSize(QSize(32, 32))
         self.bottomWidget.playPauseButton.setFixedSize(QSize(48, 48))
 
     def changeSongMetaData(self, item):
         print(item.row(), item.row())
 
-        songName = self.databaseObject.getSongs(self.selectedPlaylist)[item.row()]
+        songName = self.databaseObject.getSongs(self.parent.selectedPlaylist)[item.row()]
         rowContent = self.databaseObject.getSongData(songName)
         item.setText(item.text().capitalize())
         rowContent[item.column()] = item.text()
         #MusicEventHandler.writeDataToSong(songName, *rowContent)
-        self.databaseObject.writeSongDataToTable(songName, self.selectedPlaylist, *rowContent)
+        self.databaseObject.writeSongDataToTable(songName, self.parent.selectedPlaylist, *rowContent)
 
         #self.topWidget.resizeColumnsToContents()
 
@@ -224,20 +194,20 @@ class MainWidget(QWidget):
         filePath, _ = self.getOpenFileName( "Open and play a song")
         
         if filePath:
-            self.musicEventHandler.PLAY_NEW_SIGNAL.emit(MusicEventHandler.PLAY_SELECTED, filePath)
+            self.musicEventHandler.PLAY_NEW_SIGNAL.emit(self.musicEventHandler.PLAY_SELECTED, filePath)
             self.songIndex = sys.maxsize
  
     def addSongWithPath(self, filePath): # Overloading this method so we can also add songs by using drag and drop feature.
-        if os.path.join(self.MUSIC_PATH, os.path.basename(filePath)) in self.databaseObject.getSongs(self.selectedPlaylist):
+        if os.path.join(self.parent.MUSIC_PATH, os.path.basename(filePath)) in self.databaseObject.getSongs(self.parent.selectedPlaylist):
             return None
         
         if filePath and filePath.endswith('.mp3'):
-            toPath = os.path.join(self.MUSIC_PATH, os.path.basename(filePath))
+            toPath = os.path.join(self.parent.MUSIC_PATH, os.path.basename(filePath))
 
             if not os.path.exists(toPath):
                 shutil.copy(filePath, toPath)
         
-        self.databaseObject.writeSongDataToTable(self.selectedPlaylist, toPath, *self.musicEventHandler.getSongData(toPath))
+        self.databaseObject.writeSongDataToTable(self.parent.selectedPlaylist, toPath, *self.musicEventHandler.getSongData(toPath))
         self.refreshTopWidget()
     
     def addSong(self):
@@ -250,14 +220,14 @@ class MainWidget(QWidget):
         for i in self.topWidget.selectedItems():
             collectRows.add(i.row())
         
-        songs = self.databaseObject.getSongs(self.selectedPlaylist)
+        songs = self.databaseObject.getSongs(self.parent.selectedPlaylist)
         
         for i in collectRows:
             songName = songs[i]
             self.databaseObject.addToPlaylist(playlistName, songName)
 
     def deleteSong(self):
-        songs = self.databaseObject.getSongs(self.selectedPlaylist)
+        songs = self.databaseObject.getSongs(self.parent.selectedPlaylist)
         
         collectRows = set()
 
@@ -267,9 +237,9 @@ class MainWidget(QWidget):
 
             for i in collectRows:
                 songName = songs[i]
-                self.databaseObject.deleteSongData(self.selectedPlaylist, songName)
+                self.databaseObject.deleteSongData(self.parent.selectedPlaylist, songName)
 
-                if self.selectedPlaylist == "library":
+                if self.parent.selectedPlaylist == "library":
                     os.remove(songName)
         
         self.refreshTopWidget()

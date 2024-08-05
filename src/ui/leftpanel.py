@@ -60,9 +60,8 @@ class LeftPanel(QTreeWidget):
             else:
                 buttonPressed = QMessageBox.critical(self, "Cannot delete playlist", "Cannot delete library or playlist options")
 
-        print(self.currentlySelectedPlaylist, self.parent.mainWidget.selectedPlaylist)
-        if playlistName == self.parent.mainWidget.selectedPlaylist.capitalize():
-            self.parent.mainWidget.selectedPlaylist = "Library"
+        if playlistName == self.parent.selectedPlaylist.capitalize():
+            self.parent.selectedPlaylist = "Library"
             self.parent.mainWidget.refreshTopWidget()
             self.libraryItem.setSelected(True)
 
@@ -70,7 +69,7 @@ class LeftPanel(QTreeWidget):
         # Do something with the selected item
         itemText = self.currentlySelectedPlaylist
         if itemText != "Playlist":
-            self.parent.mainWidget.selectedPlaylist = itemText
+            self.parent.selectedPlaylist = itemText
             self.parent.mainWidget.refreshTopWidget()
 
     def initLibrarySongs(self):
@@ -101,7 +100,7 @@ class LeftPanel(QTreeWidget):
             playlistName = playlistName.capitalize()
             if playlistName != "Library" and playlistName != "Playlist" and playlistName not in playlists:
                 self.playlistItem.addChild(QTreeWidgetItem([playlistName]))
-                self.parent.mainWidget.selectedPlaylist = playlistName
+                self.parent.selectedPlaylist = playlistName
                 self.parent.mainWidget.databaseObject.addPlaylist(playlistName)
                 self.parent.mainWidget.refreshTopWidget()
             else:

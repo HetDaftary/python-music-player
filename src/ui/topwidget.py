@@ -30,8 +30,8 @@ class TopWidget(QTableWidget):
         self.setSelectionMode(QTableWidget.SingleSelection)
 
     def addMusicPathToDatabase(self):
-        for file in os.listdir(self.parent.MUSIC_PATH):
-            songName = os.path.join(self.parent.MUSIC_PATH, file)
+        for file in os.listdir(self.parent.parent.MUSIC_PATH):
+            songName = os.path.join(self.parent.parent.MUSIC_PATH, file)
             songDataFromDatabase = self.databaseObject.getSongData(songName)
             if file.endswith(".mp3") and songDataFromDatabase != None and len(songDataFromDatabase) == 0:
                 self.databaseObject.writeSongDataToTable("library", songName, *MusicEventHandler.getSongData(songName))
@@ -87,7 +87,7 @@ class TopWidget(QTableWidget):
         self.addSongAction.triggered.connect(lambda _: self.parent.addSong())
         self.menuOnRightClick.addAction(self.addSongAction)
 
-        if self.parent.selectedPlaylist == "Library":
+        if self.parent.parent.selectedPlaylist == "Library":
             self.addToPlaylistAction = QMenu("Add to playlist")
 
             self.actions = []
