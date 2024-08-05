@@ -21,8 +21,3 @@ class FileMenu(QMenu):
         if self.isMainMenu:
             self.createPlaylistAction = QAction("Create a playlist")
             self.addAction(self.createPlaylistAction)
-
-        self.openSongAction.triggered.connect(self.parent.mainWidget.openAndPlayAMp3)
-        self.addSongAction.triggered.connect(self.parent.mainWidget.addSong)
-        self.deleteSongAction.triggered.connect(self.parent.mainWidget.deleteSong)
-

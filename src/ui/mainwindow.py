@@ -8,6 +8,7 @@ from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 from ui.filemenu import FileMenu
 from ui.mainwidget import MainWidget
 from ui.leftpanel import LeftPanel
+from ui.singleplaylistwindow import SinglePlaylistWindow
 
 # Importing necessary classes for handling music
 from mp3.musicEventHandler import MusicEventHandler
@@ -52,6 +53,8 @@ class MainWindow(QMainWindow):
         # Set left panel and main widget
         self.mainWidget = MainWidget(self.databaseObject, self.musicEventHandler, self)
         self.leftPanel = LeftPanel(self.mainWidget.databaseObject, self)
+        
+        self.singlePlaylistWindow = SinglePlaylistWindow(self.databaseObject, self.musicEventHandler, self)
 
         self.splitter = QSplitter(Qt.Horizontal)
 
@@ -115,8 +118,12 @@ class MainWindow(QMainWindow):
         self.menubar.addMenu(self.fileMenu)
         self.setMenuBar(self.menubar)
 
-    def closeAppMenuAction(self):
-        self.closeEvent(0)
+        self.fileMenu.openSongAction.triggered.connect(self.mainWidget.openAndPlayAMp3)
+        self.fileMenu.exitAppAction.triggered.connect(lambda _: self.closeEvent(0))
+        self.fileMenu.addSongAction.triggered.connect(self.mainWidget.addSong)
+        self.fileMenu.deleteSongAction.triggered.connect(self.mainWidget.deleteSong)
+        if self.fileMenu.isMainMenu:
+            self.fileMenu.createPlaylistAction.triggered.connect(self.leftPanel.createPlaylist)
 
     def initFonts(self):
         fontId = QFontDatabase.addApplicationFont("data/fonts/Aller_Rg.ttf")

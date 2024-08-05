@@ -39,9 +39,6 @@ class MainWidget(QWidget):
         # Start music handler threads
         self.musicEventHandler.start()
 
-    def getSongs(self):
-        return self.databaseObject.getSongs(self.parent.selectedPlaylist)
-
     def initTopWidget(self):
         self.topWidget = TopWidget(self)
 
