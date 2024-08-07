@@ -52,12 +52,11 @@ class MusicEventHandler(QThread):
             pygame.mixer.music.pause()
             self.parent.songPlayingSignal.emit(self.parent.SONG_PLAYING_CODE, self.songs[self.songIndex])
 
-        if len(self.songs) > 0:
-            if self.isPlaying:
-                pygame.mixer.music.pause()
-            else:
-                pygame.mixer.music.unpause()
-            self.isPlaying = not self.isPlaying
+        if self.isPlaying:
+            pygame.mixer.music.pause()
+        else:
+            pygame.mixer.music.unpause()
+        self.isPlaying = not self.isPlaying
 
     def stopSong(self):
         if self.songIndex != -1:
