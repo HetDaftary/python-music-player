@@ -1,6 +1,7 @@
 import sys 
 import os
 import shutil
+import random
 
 from PyQt5.QtWidgets import QVBoxLayout, QWidget, QMessageBox, QFileDialog
 from PyQt5.QtCore import QSize, QDir
@@ -17,6 +18,7 @@ class MainWidget(QWidget):
 
         self.songIndex = -1
         self.currentTheme = "dark.css"
+        self.shuffleSongs = False
 
         self.databaseObject = databaseObject
 
@@ -36,9 +38,6 @@ class MainWidget(QWidget):
         self.layout.addWidget(self.topWidget)
         self.layout.addWidget(self.bottomWidget)
 
-        # Start music handler threads
-        self.musicEventHandler.start()
-
     def initTopWidget(self):
         self.topWidget = TopWidget(self)
 
@@ -50,24 +49,48 @@ class MainWidget(QWidget):
     #@pyqtSlot()
     def handleDeselectSong(self):
         self.topWidget.clearSelection()
-        
+    
+    def setVolume(self, newVol = -1):
+        if (type(newVol) == float):
+            newVol = round(newVol) # Rount new volume to nearest integer
+
+        if newVol == -1:
+            newVol = self.bottomWidget.volumeSlider.value()
+        self.musicEventHandler.VOLUME_SIGNAL.emit(self.musicEventHandler.SET_VOLUME, newVol)
+        self.bottomWidget.volumeSlider.setValue(newVol)
+
+    def increaseVolume(self):
+        self.setVolume(max(min(self.bottomWidget.volumeSlider.value() * 1.05, 100), 0))
+    
+    def decreaseVolume(self):
+        self.setVolume(max(min(self.bottomWidget.volumeSlider.value() * 0.95, 100), 0))
+
+    def setShuffle(self, checkState):
+        self.shuffleSongs = checkState
+    
     def initButtonActions(self):
         self.bottomWidget.playSelected.clicked.connect(self.playSelectedButtonAction)
         self.bottomWidget.previousButton.clicked.connect(self.previousButtonAction)
         self.bottomWidget.playPauseButton.clicked.connect(self.playPauseButtonAction)  
         self.bottomWidget.nextButton.clicked.connect(self.nextButtonAction)
         self.bottomWidget.stopButton.clicked.connect(self.stopButtonAction)
-        self.bottomWidget.volumeSlider.valueChanged.connect(lambda _: self.musicEventHandler.VOLUME_SIGNAL.emit(self.musicEventHandler.SET_VOLUME, self.bottomWidget.volumeSlider.value()))
+        self.bottomWidget.volumeSlider.valueChanged.connect(self.setVolume)
 
     def playSelectedButtonAction(self):
         if self.topWidget.songSelectedByUser == -1:
-            QMessageBox.information(self, "Select song", "Please select a song before trying to use this button")
-        else:
-            self.musicEventHandler.PLAY_NEW_SIGNAL.emit(self.musicEventHandler.PLAY_SELECTED, self.topWidget.songs[self.topWidget.songSelectedByUser])  
-            self.songIndex = self.topWidget.songSelectedByUser
+            if self.shuffleSongs:
+                self.topWidget.songSelectedByUser = random.randint(0, len(self.topWidget.songs) - 1)
+            else:    
+                self.topWidget.songSelectedByUser = 0
+        
+        self.musicEventHandler.PLAY_NEW_SIGNAL.emit(self.musicEventHandler.PLAY_SELECTED, self.topWidget.songs[self.topWidget.songSelectedByUser])  
+        self.songIndex = self.topWidget.songSelectedByUser
 
     def previousButtonAction(self):
-        self.songIndex = ((self.songIndex + 1) % len(self.topWidget.songs)) if self.songIndex != -1 else len(self.topWidget.songs) -1
+        if self.shuffleSongs:
+            self.songIndex = random.randint(0, len(self.topWidget.songs) - 1)
+        else:
+            self.songIndex = ((self.songIndex - 1) % len(self.topWidget.songs)) if self.songIndex != -1 else len(self.topWidget.songs) -1
         self.musicEventHandler.PLAY_NEW_SIGNAL.emit(self.musicEventHandler.PLAY_SELECTED, self.topWidget.songs[self.songIndex]) 
 
     def playPauseButtonAction(self):
@@ -78,7 +101,10 @@ class MainWidget(QWidget):
             self.musicEventHandler.MUSIC_CONTROL_SIGNAL.emit(self.musicEventHandler.PLAY_PAUSE)
 
     def nextButtonAction(self):
-        self.songIndex = ((self.songIndex + 1) % len(self.topWidget.songs)) if self.songIndex != -1 else 0
+        if self.shuffleSongs:
+            self.songIndex = random.randint(0, len(self.topWidget.songs) - 1)
+        else:    
+            self.songIndex = ((self.songIndex + 1) % len(self.topWidget.songs)) if self.songIndex != -1 else 0
         self.musicEventHandler.PLAY_NEW_SIGNAL.emit(self.musicEventHandler.PLAY_SELECTED, self.topWidget.songs[self.songIndex])
 
     def stopButtonAction(self):

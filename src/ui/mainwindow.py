@@ -6,12 +6,14 @@ from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 
 # Importing necessary classes for UI
 from ui.filemenu import FileMenu
+from ui.controlmenu import ControlMenu
 from ui.mainwidget import MainWidget
 from ui.leftpanel import LeftPanel
 from ui.singleplaylistwindow import SinglePlaylistWindow
 
 # Importing necessary classes for handling music
 from mp3.musicEventHandler import MusicEventHandler
+from mp3.musicpositionthread import MusicPositionThread
 
 # Import necessary classes for handling database
 from sqlite.databasehandler import DatabaseHandler
@@ -24,9 +26,15 @@ class MainWindow(QMainWindow):
     SONG_PLAYING_CODE = 13 # For the signal to tell about which song is playing.
     REFRESH_SONGS_SIGNAL = 14
     SET_VOLUME = 15
+
+    MUSIC_POSITION_UPDATE = 100 # Position update given
+    MUSIC_END_CODE = 101 # Music ends naturally
+    MUSIC_STOP_CODE = 102 # Music stopped by user
+
     MUSIC_CONTROL_SIGNAL = pyqtSignal(int, name = "playPauseHandle") # Signal to throw for making event.
     songPlayingSignal = pyqtSignal(int, str, name = "tellsWhichSongIsPlaying") # tells which song is getting played
     DESELECT_SONG_ON_TABLE = pyqtSignal(name = "deselectTheSelectSong")
+    musicPositionSignal = pyqtSignal(int, int, name = "givesMusicPosition") # Song 
 
     def __init__(self, app):
         super().__init__()
@@ -49,6 +57,7 @@ class MainWindow(QMainWindow):
 
         # Init music player
         self.musicEventHandler = MusicEventHandler(self)
+        self.musicPositionThread = MusicPositionThread(self.musicEventHandler, self)
 
         # Set left panel and main widget
         self.mainWidget = MainWidget(self.databaseObject, self.musicEventHandler, self)
@@ -68,6 +77,10 @@ class MainWindow(QMainWindow):
         self.layout.addWidget(self.splitter)
 
         self.setCentralWidget(self.centralWidget)
+
+        # Start music handler threads
+        self.musicEventHandler.start()
+        self.musicPositionThread.start()
 
         # Init fonts
         self.initFonts()
@@ -106,17 +119,18 @@ class MainWindow(QMainWindow):
 
     # Defining this to stop pygame thread.
     def closeEvent(self, event):
-        self.mainWidget.musicEventHandler.stop()
-        self.mainWidget.musicEventHandler.wait()
-        self.mainWidget.databaseObject.cur.close()
-        self.mainWidget.databaseObject.conn.close()
+        self.musicPositionThread.stop()
+        self.musicPositionThread.wait()
+        self.musicEventHandler.stop()
+        self.musicEventHandler.wait()
+        self.databaseObject.cur.close()
+        self.databaseObject.conn.close()
         QApplication.quit()
 
     def initMenu(self):
         self.menubar = QMenuBar(self)
-        self.fileMenu = FileMenu(parent=self) # This class has 2 optional variables so I need to write which variable should self be assigned to 
+        self.fileMenu = FileMenu(True, self) # This class has 2 optional variables so I need to write which variable should self be assigned to 
         self.menubar.addMenu(self.fileMenu)
-        self.setMenuBar(self.menubar)
 
         self.fileMenu.openSongAction.triggered.connect(self.mainWidget.openAndPlayAMp3)
         self.fileMenu.exitAppAction.triggered.connect(lambda _: self.closeEvent(0))
@@ -124,6 +138,11 @@ class MainWindow(QMainWindow):
         self.fileMenu.deleteSongAction.triggered.connect(self.mainWidget.deleteSong)
         if self.fileMenu.isMainMenu:
             self.fileMenu.createPlaylistAction.triggered.connect(self.leftPanel.createPlaylist)
+
+        self.controlMenu = ControlMenu(self.mainWidget, self)
+        self.menubar.addMenu(self.controlMenu)
+        
+        self.setMenuBar(self.menubar)
 
     def initFonts(self):
         fontId = QFontDatabase.addApplicationFont("data/fonts/Aller_Rg.ttf")
