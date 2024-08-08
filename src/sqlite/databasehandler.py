@@ -10,15 +10,25 @@ class DatabaseHandler:
             "CREATE TABLE IF NOT EXISTS songDetails (title	TEXT, artist	TEXT, genre	TEXT, album	TEXT, comment	TEXT, year	TEXT, songId	INTEGER, PRIMARY KEY(songId));",
             "CREATE TABLE IF NOT EXISTS songNameToSongId (songName	TEXT,songId	INTEGER,PRIMARY KEY(songName));",
             "CREATE TABLE IF NOT EXISTS playlistIdToSongId (songId	INTEGER,playlistId	INTEGER,PRIMARY KEY(playlistId,songId));",
-            "CREATE TABLE IF NOT EXISTS playlistNameToPlaylistId (playlistName	TEXT,playlistId	INTEGER,PRIMARY KEY(playlistName));"
+            "CREATE TABLE IF NOT EXISTS playlistNameToPlaylistId (playlistName	TEXT,playlistId	INTEGER,PRIMARY KEY(playlistName));",
+            "CREATE TABLE IF NOT EXISTS songsInHistory (songName TEXT PRIMARY KEY, playedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP);",
+            "CREATE TABLE IF NOT EXISTS columnNameToShow (columnName	TEXT, toShow	INTEGER, PRIMARY KEY(columnName));"
         ]
 
         for i in createTableSyntax:
             self.executeSqlQuery(i)
 
     def getPlaylists(self):
-        query="SELECT playlistName FROM playlistNameToPlaylistId"
+        query = "SELECT playlistName FROM playlistNameToPlaylistId"
         return [x[0] for x in self.executeSqlQuery(query)]
+
+    def getLastSongs(self, limit = 10):
+        query = f"SELECT songName FROM songsInHistory ORDER BY playedAt DESC LIMIT {limit};"
+        return [x[0] for x in self.executeSqlQuery(query)]
+
+    def addSongToHistory(self, songName):
+        query = f"INSERT INTO songsInHistory (songName) VALUES (\"{songName}\") ON CONFLICT(songName) DO UPDATE SET playedAt = CURRENT_TIMESTAMP;"
+        self.executeSqlQuery(query)
 
     def addPlaylist(self, playlistName):
         self.getPlaylistIdFromName(playlistName)
@@ -127,6 +137,9 @@ class DatabaseHandler:
             return None
 
 if __name__ == "__main__":
+    import os
+    import time
+
     object = DatabaseHandler()
     object.writeSongDataToTable("library", "song1", "title1", "artist1", "album1", "year1", "genre1", "comment1")
     object.writeSongDataToTable("library", "song2", "title2", "artist2", "album2", "year2", "genre2", "comment2")
@@ -137,11 +150,20 @@ if __name__ == "__main__":
     print(object.getSongData("song1"))
     print(object.getSongData("song2"))
 
-    for song in object.getSongs("library"):
-        print(song, object.getSongData(song))
+    os.system("date")
 
-    for song in object.getSongs("playlist-1"):
-        print(song, object.getSongData(song))
+    for song in os.listdir("data/mp3-files"):
+        object.addSongToHistory(songName=os.path.join("data/mp3-files", song))
 
-    object.deleteSongData("playlist-2", "song1")
-    object.deleteSongData("library", "song2")
+    print("added songs 1")
+    time.sleep(10)
+
+    os.system("date")
+
+    for song in os.listdir("data/mp3-files"):
+        object.addSongToHistory(songName=os.path.join("data/mp3-files", song))
+
+    print("added songs 2")
+
+    print(len(object.getLastSongs()))
+

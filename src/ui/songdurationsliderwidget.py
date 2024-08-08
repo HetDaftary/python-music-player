@@ -12,35 +12,35 @@ class SongDurationSliderWidget(QWidget):
         self.layout = QHBoxLayout()
         self.setLayout(self.layout)
 
-        self.currentPosLabel = QLabel("00:00")
+        self.currentPosLabel = QLabel("0:00:00")
         self.currentPosLabel.setSizePolicy(QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum))
         self.layout.addWidget(self.currentPosLabel)
 
         self.horizontalSlider = SongPositionSlider(self.musicEventHandler, self)
-        #self.horizontalSlider.sliderReleased.connect(self.setPosition)
         self.layout.addWidget(self.horizontalSlider)
 
-        self.endPosLabel = QLabel("00:00")
+        self.endPosLabel = QLabel("0:00:00")
         self.endPosLabel.setSizePolicy(QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum))
         self.layout.addWidget(self.endPosLabel)
 
     @staticmethod
     def convertToTime(timeInMilliseconds):
         time = timeInMilliseconds // 1000
-
+        hours = f"{time // 3600}"
+        time = time % 3600
         minutes = f"{time // 60}"
         minutes = f"{minutes}" if len(minutes) > 1 else f"0{minutes}" 
         seconds = f"{time % 60}"
         seconds = f"{seconds}" if len(seconds) > 1 else f"0{seconds}"
 
-        return f"{minutes}:{seconds}"
+        return f"{hours}:{minutes}:{seconds}"
 
     def setForNewSong(self, duration):
         durationTime = self.convertToTime(duration)
         self.endPosLabel.setText(durationTime) 
         self.endPosLabel.adjustSize()
 
-        self.currentPosLabel.setText("00:00")
+        self.currentPosLabel.setText("0:00:00")
         self.currentPosLabel.adjustSize()
 
         self.horizontalSlider.setRange(0, duration)

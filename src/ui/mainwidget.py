@@ -96,6 +96,7 @@ class MainWidget(QWidget):
         
         self.musicEventHandler.PLAY_NEW_SIGNAL.emit(self.musicEventHandler.PLAY_SELECTED, self.topWidget.songs[self.topWidget.songSelectedByUser])  
         self.songIndex = self.topWidget.songSelectedByUser
+        self.databaseObject.addSongToHistory(self.topWidget.songs[self.songIndex])
         self.songDurationSliderWidget.setForNewSong(self.musicEventHandler.getDuration(self.topWidget.songs[self.songIndex]))
 
     def previousButtonAction(self):
@@ -104,6 +105,7 @@ class MainWidget(QWidget):
         else:
             self.songIndex = ((self.songIndex - 1) % len(self.topWidget.songs)) if self.songIndex != -1 else len(self.topWidget.songs) -1
         self.musicEventHandler.PLAY_NEW_SIGNAL.emit(self.musicEventHandler.PLAY_SELECTED, self.topWidget.songs[self.songIndex]) 
+        self.databaseObject.addSongToHistory(self.topWidget.songs[self.songIndex])
         self.songDurationSliderWidget.setForNewSong(self.musicEventHandler.getDuration(self.topWidget.songs[self.songIndex]))
 
     def playPauseButtonAction(self):
@@ -120,6 +122,7 @@ class MainWidget(QWidget):
             self.songIndex = ((self.songIndex + 1) % len(self.topWidget.songs)) if self.songIndex != -1 else 0
         self.musicEventHandler.PLAY_NEW_SIGNAL.emit(self.musicEventHandler.PLAY_SELECTED, self.topWidget.songs[self.songIndex])
         self.songDurationSliderWidget.setForNewSong(self.musicEventHandler.getDuration(self.topWidget.songs[self.songIndex]))
+        self.databaseObject.addSongToHistory(self.topWidget.songs[self.songIndex])
 
     def stopButtonAction(self):
         self.musicEventHandler.MUSIC_CONTROL_SIGNAL.emit(self.musicEventHandler.STOP)

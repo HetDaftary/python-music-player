@@ -24,19 +24,20 @@ class MusicPositionThread(QThread):
     def run(self):
         while self.running:
             currentPos = self.musicEventHandler.getPosition()
-            if self.lastPos != 0 and currentPos == 0:
-                if self.lastSongDuration - self.lastPos < 2 * self.delay:
-                    # Song ended naturally without user interaction
-                    self.parent.musicPositionSignal.emit(self.parent.MUSIC_END_CODE, currentPos)
-                else:
-                    # Song stopped by user
-                    self.parent.musicPositionSignal.emit(self.parent.MUSIC_STOP_CODE, currentPos)
+            if currentPos == self.lastSongDuration:
+                self.parent.musicPositionSignal.emit(self.parent.MUSIC_END_CODE, currentPos)
                 self.lastSong =  ""
                 self.lastSongDuration = 0
-            elif self.lastPos == 0 and currentPos != 0:
+            elif self.lastPos != 0 and currentPos == 0:
+                # Song stopped by user
+                self.parent.musicPositionSignal.emit(self.parent.MUSIC_STOP_CODE, currentPos)
+                self.lastSong =  ""
+                self.lastSongDuration = 0
+            elif (self.lastPos == 0 and currentPos != 0) or (self.lastPos > currentPos):
                 # A song started
                 # To updated last song name, duration etc
                 self.lastSong = self.musicEventHandler.songName
+                self.lastPos = 0
                 self.lastSongDuration = self.musicEventHandler.getDuration(self.lastSong) if os.path.exists(self.lastSong) else 0 
                 self.parent.musicPositionSignal.emit(self.parent.MUSIC_POSITION_UPDATE, currentPos)
             elif self.lastSong !=  "":

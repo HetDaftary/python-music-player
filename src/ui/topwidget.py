@@ -54,7 +54,7 @@ class TopWidget(QTableWidget):
 
             if len(songDataFromDatabase) != 0:
                 self.labelNames.append([x.capitalize() for x in songDataFromDatabase[0]])
-            
+
         for i in range(len(self.labelNames)):
             for j in range(len(self.labelNames[0])):
                 item = QTableWidgetItem(self.labelNames[i][j])
