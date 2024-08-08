@@ -1,4 +1,4 @@
-import pygame
+import os
 
 from PyQt5.QtCore import QThread
 
@@ -8,7 +8,7 @@ class MusicPositionThread(QThread):
         self.parent = parent
         self.musicEventHandler = musicEventHandler
         self.lastSong = ""
-        self.lastPos = -1
+        self.lastPos = 0
         self.lastSongDuration = 0
         self.running = True
         self.delay = 1000
@@ -23,11 +23,8 @@ class MusicPositionThread(QThread):
 
     def run(self):
         while self.running:
-            self.musicEventHandler.mutex.lock()
-            currentPos = pygame.mixer.music.get_pos()
-            self.musicEventHandler.mutex.unlock()
-            print(currentPos)
-            if self.lastPos != -1 and currentPos == -1:
+            currentPos = self.musicEventHandler.getPosition()
+            if self.lastPos != 0 and currentPos == 0:
                 if self.lastSongDuration - self.lastPos < 2 * self.delay:
                     # Song ended naturally without user interaction
                     self.parent.musicPositionSignal.emit(self.parent.MUSIC_END_CODE, currentPos)
@@ -36,11 +33,11 @@ class MusicPositionThread(QThread):
                     self.parent.musicPositionSignal.emit(self.parent.MUSIC_STOP_CODE, currentPos)
                 self.lastSong =  ""
                 self.lastSongDuration = 0
-            elif self.lastPos == -1 and currentPos != -1:
+            elif self.lastPos == 0 and currentPos != 0:
                 # A song started
                 # To updated last song name, duration etc
                 self.lastSong = self.musicEventHandler.songName
-                self.lastSongDuration = self.musicEventHandler.getDuration(self.lastSong)
+                self.lastSongDuration = self.musicEventHandler.getDuration(self.lastSong) if os.path.exists(self.lastSong) else 0 
                 self.parent.musicPositionSignal.emit(self.parent.MUSIC_POSITION_UPDATE, currentPos)
             elif self.lastSong !=  "":
                 # If any song is playing keep updating the position counter

@@ -1,4 +1,2 @@
 pyqt5
-pygame
 mutagen
-pysqlite3

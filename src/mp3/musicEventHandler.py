@@ -2,9 +2,9 @@ import os
 import shutil
 from sys import maxsize
 
-import pygame
+from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 
-from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot, QMutex
+from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot, QMutex, QUrl
 from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3
 
@@ -20,8 +20,6 @@ class MusicEventHandler(QThread):
     DELETE_A_SONG = 8
     SET_VOLUME = 10
 
-    SONG_END = pygame.USEREVENT # If song automatically ends.
-
     MUSIC_CONTROL_SIGNAL = pyqtSignal(int, name = "musicPlayer") # Play/pause and stop music playing.
     PLAY_NEW_SIGNAL = pyqtSignal(int, str, name = "playNewSignal") # To play a song using it's filepath.
     VOLUME_SIGNAL = pyqtSignal(int, int, name = "setVolume") # To set volume to any value.
@@ -31,14 +29,14 @@ class MusicEventHandler(QThread):
         super().__init__(parent)
         self.parent = parent 
         
-        pygame.init()
-        pygame.mixer.init()
+        self.player = QMediaPlayer(self)
+
         self.vol = 0.6
 
         # Logic parts
         self.isPlaying = False
         self.songName = ""
-        self.volume = 0.6
+        self.volume = 60
 
         self.mutex = QMutex()  # Mutex for thread safety
 
@@ -53,27 +51,18 @@ class MusicEventHandler(QThread):
         return round(audio.info.length * 1000) # Using the milliseconds format.    
 
     def playPause(self):
-        if self.songName != None and self.songName != "":
-            print("to lock")
-            self.mutex.lock()
-            print("locked")
-            pygame.mixer.music.load(self.songName) 
-            pygame.mixer.music.set_volume(self.vol) 
-            pygame.mixer.music.play() 
-            pygame.mixer.music.pause()
-            self.parent.songPlayingSignal.emit(self.parent.SONG_PLAYING_CODE, self.songName)
-
+        
         if self.isPlaying:
-            pygame.mixer.music.pause()
+            self.player.pause()
         else:
-            pygame.mixer.music.unpause()
+            self.player.play()
         self.isPlaying = not self.isPlaying
-        self.mutex.unlock()
+        
 
     def stopSong(self):
-        self.mutex.lock()
-        pygame.mixer.music.stop()
-        self.mutex.unlock()
+        
+        self.player.stop()
+        
         self.isPlaying = False
         self.songName = ""
 
@@ -84,25 +73,33 @@ class MusicEventHandler(QThread):
     @pyqtSlot(int)
     def setPosition(self, position):
         if self.songName != "":
-            self.mutex.lock()
-            print("calling set poisition with position:", position // 1000)
-            pygame.mixer.music.rewind()
-            pygame.mixer.music.play(start = position // 1000)
-            self.mutex.unlock()
+            self.player.setPosition(position)
+            
 
-    def playNew(self, songName):
+    def getPosition(self):
+        
+        position = self.player.position()
+        
+        return position
+
+    def playNew(self, songName: str):
         self.stopSong() # To stop the player if it is already running.
         # To play new song
         try:
-            self.mutex.lock()
-            pygame.mixer.music.load(songName)
-            pygame.mixer.music.play() 
-            pygame.mixer.music.set_endevent(self.SONG_END)
-            self.mutex.unlock()
+            self.songName = songName
+
+            url = ""
+            if songName.startswith("/"):
+                url = QUrl.fromLocalFile(songName)  # Replace with the path to your MP3 file
+            else:
+                url = QUrl.fromLocalFile(os.path.join(os.getcwd(), songName))
+            content = QMediaContent(url)
+            self.player.setMedia(content)
+            
+            self.player.play()
             self.setVolume(self.volume)
             self.parent.songPlayingSignal.emit(self.parent.SONG_PLAYING_CODE, songName)
             self.parent.MUSIC_CONTROL_SIGNAL.emit(self.parent.SWITCH_TO_PAUSE)
-            self.songName = songName
         except Exception as e:
             print("Caught exception", e)
             return None
@@ -136,16 +133,13 @@ class MusicEventHandler(QThread):
             audio.save()
 
     def setVolume(self, vol):
-        vol = max(0, min(vol, 1))
-        self.mutex.lock()
-        pygame.mixer.music.set_volume(vol) 
-        self.mutex.unlock()
+        self.vol = vol
+        
+        self.player.setVolume(round(self.vol))
+        
 
     def stop(self):
         self.stopSong()
-        pygame.mixer.quit()
-        pygame.quit()
-
         self.quit()
 
     @pyqtSlot(int)
@@ -167,4 +161,5 @@ class MusicEventHandler(QThread):
 
     @pyqtSlot(int, int)
     def setVolumeSlot(self, value, volume):
-        self.setVolume(volume / 100)
+        print("Setting volume", volume)
+        self.setVolume(volume)

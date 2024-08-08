@@ -136,7 +136,7 @@ class MainWidget(QWidget):
             else:
                 # Play next song if repeat songs is not set 
                 self.nextButtonAction()
-        elif val == self.parent.MUSIC_POSITION_UPDATE:
+        else:
             self.songDurationSliderWidget.updatePosition(position)
 
     #@pyqtSlot(int, str)

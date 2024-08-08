@@ -1,8 +1,6 @@
 from PyQt5.QtWidgets import QLabel, QWidget, QSizePolicy, QHBoxLayout
 
-import pygame
-
-from ui.horizontalslider import HorizontalSlider
+from ui.songpositionslider import SongPositionSlider
 
 class SongDurationSliderWidget(QWidget):
     def __init__(self, musicEventHandler, parent=None):
@@ -18,8 +16,8 @@ class SongDurationSliderWidget(QWidget):
         self.currentPosLabel.setSizePolicy(QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum))
         self.layout.addWidget(self.currentPosLabel)
 
-        self.horizontalSlider = HorizontalSlider(self)
-        self.horizontalSlider.valueChanged.connect(self.setPosition)
+        self.horizontalSlider = SongPositionSlider(self.musicEventHandler, self)
+        #self.horizontalSlider.sliderReleased.connect(self.setPosition)
         self.layout.addWidget(self.horizontalSlider)
 
         self.endPosLabel = QLabel("00:00")
@@ -37,9 +35,6 @@ class SongDurationSliderWidget(QWidget):
 
         return f"{minutes}:{seconds}"
 
-    def setPosition(self):
-        self.musicEventHandler.setPosition(self.horizontalSlider.value())
-
     def setForNewSong(self, duration):
         durationTime = self.convertToTime(duration)
         self.endPosLabel.setText(durationTime) 
@@ -52,9 +47,7 @@ class SongDurationSliderWidget(QWidget):
         self.horizontalSlider.setValue(0)
 
     def updatePosition(self, position):
-        self.horizontalSlider.blockSignals(True)
         currentTime = self.convertToTime(position)
         self.currentPosLabel.setText(currentTime)
         self.currentPosLabel.adjustSize()
         self.horizontalSlider.setValue(position)
-        self.horizontalSlider.blockSignals(False)
