@@ -83,7 +83,7 @@ class TopWidget(QTableWidget):
     def contextMenuEvent(self, event):
         self.menuOnRightClick = QMenu(self)
 
-        self.addSongAction = QAction("Add song to library")
+        self.addSongAction = QAction(f"Add song to {self.parent.parent.selectedPlaylist}")
         self.addSongAction.triggered.connect(lambda _: self.parent.addSong())
         self.menuOnRightClick.addAction(self.addSongAction)
 

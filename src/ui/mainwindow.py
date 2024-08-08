@@ -105,6 +105,13 @@ class MainWindow(QMainWindow):
         self.MUSIC_CONTROL_SIGNAL.connect(self.handlePlayPauseButton)
         self.songPlayingSignal.connect(self.handleSongPlaying)
 
+        # Init other signals
+        self.musicPositionSignal.connect(self.songPositionHandle)
+
+    @pyqtSlot(int, int)
+    def songPositionHandle(self, val, position):
+        self.mainWidget.songPositionHandle(val, position)
+
     @pyqtSlot()
     def handleDeselectSong(self):
         self.mainWidget.handleDeselectSong()

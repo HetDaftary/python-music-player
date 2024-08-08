@@ -10,6 +10,7 @@ from PyQt5.QtGui import QIcon, QColor
 # Importing necessary classes for UI
 from ui.bottomwidget import BottomWidget
 from ui.topwidget import TopWidget
+from ui.songdurationsliderwidget import SongDurationSliderWidget
 
 class MainWidget(QWidget):
     def __init__(self, databaseObject, musicEventHandler, parent = None):
@@ -19,6 +20,7 @@ class MainWidget(QWidget):
         self.songIndex = -1
         self.currentTheme = "dark.css"
         self.shuffleSongs = False
+        self.repeatSongs = False
 
         self.databaseObject = databaseObject
 
@@ -35,15 +37,21 @@ class MainWidget(QWidget):
         # Add top widget
         self.initTopWidget()
 
+        # Init song slider
+        self.initSongSlider()
+
+        self.layout.addWidget(self.songDurationSliderWidget)
         self.layout.addWidget(self.topWidget)
         self.layout.addWidget(self.bottomWidget)
+
+    def initSongSlider(self):
+        self.songDurationSliderWidget = SongDurationSliderWidget(self.musicEventHandler, self)
 
     def initTopWidget(self):
         self.topWidget = TopWidget(self)
 
     def initBottomWidget(self):
         self.bottomWidget = BottomWidget(self)
-        
         self.initButtonActions()
 
     #@pyqtSlot()
@@ -55,15 +63,18 @@ class MainWidget(QWidget):
             newVol = round(newVol) # Rount new volume to nearest integer
 
         if newVol == -1:
-            newVol = self.bottomWidget.volumeSlider.value()
+            newVol = self.bottomWidget.volumeSlider.horizontalSlider.value()
         self.musicEventHandler.VOLUME_SIGNAL.emit(self.musicEventHandler.SET_VOLUME, newVol)
-        self.bottomWidget.volumeSlider.setValue(newVol)
+        self.bottomWidget.volumeSlider.horizontalSlider.setValue(newVol)
 
     def increaseVolume(self):
-        self.setVolume(max(min(self.bottomWidget.volumeSlider.value() * 1.05, 100), 0))
+        self.setVolume(max(min(self.bottomWidget.volumeSlider.horizontalSlider.value() * 1.05, 100), 0))
     
     def decreaseVolume(self):
-        self.setVolume(max(min(self.bottomWidget.volumeSlider.value() * 0.95, 100), 0))
+        self.setVolume(max(min(self.bottomWidget.volumeSlider.horizontalSlider.value() * 0.95, 100), 0))
+
+    def setRepeatSongs(self, checkState):
+        self.repeatSongs = checkState
 
     def setShuffle(self, checkState):
         self.shuffleSongs = checkState
@@ -74,7 +85,7 @@ class MainWidget(QWidget):
         self.bottomWidget.playPauseButton.clicked.connect(self.playPauseButtonAction)  
         self.bottomWidget.nextButton.clicked.connect(self.nextButtonAction)
         self.bottomWidget.stopButton.clicked.connect(self.stopButtonAction)
-        self.bottomWidget.volumeSlider.valueChanged.connect(self.setVolume)
+        self.bottomWidget.volumeSlider.horizontalSlider.valueChanged.connect(self.setVolume)
 
     def playSelectedButtonAction(self):
         if self.topWidget.songSelectedByUser == -1:
@@ -85,6 +96,7 @@ class MainWidget(QWidget):
         
         self.musicEventHandler.PLAY_NEW_SIGNAL.emit(self.musicEventHandler.PLAY_SELECTED, self.topWidget.songs[self.topWidget.songSelectedByUser])  
         self.songIndex = self.topWidget.songSelectedByUser
+        self.songDurationSliderWidget.setForNewSong(self.musicEventHandler.getDuration(self.topWidget.songs[self.songIndex]))
 
     def previousButtonAction(self):
         if self.shuffleSongs:
@@ -92,6 +104,7 @@ class MainWidget(QWidget):
         else:
             self.songIndex = ((self.songIndex - 1) % len(self.topWidget.songs)) if self.songIndex != -1 else len(self.topWidget.songs) -1
         self.musicEventHandler.PLAY_NEW_SIGNAL.emit(self.musicEventHandler.PLAY_SELECTED, self.topWidget.songs[self.songIndex]) 
+        self.songDurationSliderWidget.setForNewSong(self.musicEventHandler.getDuration(self.topWidget.songs[self.songIndex]))
 
     def playPauseButtonAction(self):
         if self.songIndex == -1:
@@ -106,9 +119,25 @@ class MainWidget(QWidget):
         else:    
             self.songIndex = ((self.songIndex + 1) % len(self.topWidget.songs)) if self.songIndex != -1 else 0
         self.musicEventHandler.PLAY_NEW_SIGNAL.emit(self.musicEventHandler.PLAY_SELECTED, self.topWidget.songs[self.songIndex])
+        self.songDurationSliderWidget.setForNewSong(self.musicEventHandler.getDuration(self.topWidget.songs[self.songIndex]))
 
     def stopButtonAction(self):
         self.musicEventHandler.MUSIC_CONTROL_SIGNAL.emit(self.musicEventHandler.STOP)
+        self.songDurationSliderWidget.setForNewSong(0)
+
+    #@pyqtSlot(int, int)
+    def songPositionHandle(self, val, position):
+        if val == self.parent.MUSIC_END_CODE:
+            if self.repeatSongs:
+                if self.songIndex == -1:
+                    # Play selected function uses song selected by user parameter to decide which song to play.
+                    self.topWidget.songSelectedByUser = random.randint(0, len(self.topWidget.songs)) if self.shuffleSongs else 0
+                self.playSelectedButtonAction()
+            else:
+                # Play next song if repeat songs is not set 
+                self.nextButtonAction()
+        elif val == self.parent.MUSIC_POSITION_UPDATE:
+            self.songDurationSliderWidget.updatePosition(position)
 
     #@pyqtSlot(int, str)
     def handleSongPlaying(self, value, songName):
@@ -219,6 +248,7 @@ class MainWidget(QWidget):
         if filePath:
             self.musicEventHandler.PLAY_NEW_SIGNAL.emit(self.musicEventHandler.PLAY_SELECTED, filePath)
             self.songIndex = sys.maxsize
+            self.songDurationSliderWidget.setForNewSong(self.musicEventHandler.getDuration(filePath))
  
     def addSongWithPath(self, filePath): # Overloading this method so we can also add songs by using drag and drop feature.
         if os.path.join(self.parent.MUSIC_PATH, os.path.basename(filePath)) in self.databaseObject.getSongs(self.parent.selectedPlaylist):

@@ -2,10 +2,9 @@
 
 * A simple easy to use music player made in python using PyQt5, pygame and mutagen
 
-
 ## Running the project
 
-### Ubuntu or another Debian base distro 
+### Ubuntu or another Debian base distro
 
 * Install pip for python3
 
@@ -57,13 +56,13 @@ python3 src/main.py
 ### Make control menu
 
 * Completed the following functionalities:
-    * Play selected
-    * Next
-    * Shuffle
-    * Previous
-    * Increase volume
-    * Decrease volume
-    * Repeat
+  * Play selected
+  * Next
+  * Shuffle
+  * Previous
+  * Increase volume
+  * Decrease volume
+  * Repeat
 * To make keyboard shortcuts as per requirement
 
 ### Make feature to open a playlist in new window
@@ -84,7 +83,7 @@ python3 src/main.py
 * Select which columns to show or hide, show columns
 * Update these entries in the database to make things consistent and show columns as per the selection
 
-### Make song position slider
+### Make a song position slider
 
 * Make song slider ui
 * Implemented a QThread which gets position of the song and duration using pygame and mutagen api

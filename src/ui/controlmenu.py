@@ -27,6 +27,7 @@ class ControlMenu(QMenu):
         self.decreaseVolume.triggered.connect(self.mainWidget.decreaseVolume)
 
         self.shuffle.triggered.connect(lambda _: self.mainWidget.setShuffle(self.shuffle.isChecked()))
+        self.repeatSong.triggered.connect(lambda _: self.mainWidget.setRepeatSongs(self.repeatSong.isChecked()))
 
         self.addAction(self.playButton)
         self.addAction(self.nextButton)
