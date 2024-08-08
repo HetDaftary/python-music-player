@@ -118,7 +118,7 @@ class MainWidget(QWidget):
                 songData = MusicEventHandler.getSongData(songName)
                 songTitle = songData[0]
 
-        self.bottomWidget.songPlayingLabel.setText(f"Playing song : {songTitle}" if songTitle != "" else "")
+        self.bottomWidget.songPlayingLabel.setText(f" {songTitle}" if songTitle != "" else "")
         self.setSongPlayingSignalButtonBorder()
 
         songs = self.getSongs()
@@ -222,6 +222,7 @@ class MainWidget(QWidget):
         
         if filePath:
             self.musicEventHandler.INT_STRING_SIGNAL.emit(self.musicEventHandler.ADD_A_SONG, filePath)
+
         else:
             print("pressed cancel")
     

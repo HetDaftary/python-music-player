@@ -12,7 +12,7 @@ class MainWindow(QMainWindow):
     def __init__(self, app):
         super().__init__()
 
-        self.setWindowTitle("My Tunes")
+        self.setWindowTitle("MyTunes")
 
         # Set size
         self.app = app
