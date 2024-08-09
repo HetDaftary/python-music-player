@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import QMenu, QAction, QCheckBox
+from PyQt5.QtWidgets import QMenu, QAction
+from PyQt5.QtCore import Qt
 
 from ui.mainwidget import MainWidget
 
@@ -10,11 +11,16 @@ class ControlMenu(QMenu):
         self.mainWidget = mainWidget
 
         self.playButton = QAction("Play") # Plays selected song
+        self.playButton.setShortcut("Space")
         self.nextButton = QAction("Next") # Next song button
+        self.nextButton.setShortcut(Qt.CTRL + Qt.Key_Right)
         self.previousButton = QAction("Previous") # Previous song button
+        self.previousButton.setShortcut(Qt.CTRL + Qt.Key_Left)
         self.playRecentButton = QMenu("Play Recent") # Play recent button
-        self.increaseVolume = QAction("Increase volume") 
+        self.increaseVolume = QAction("Increase volume")
+        self.increaseVolume.setShortcut("Ctrl+I") 
         self.decreaseVolume = QAction("Decrease volume")
+        self.decreaseVolume.setShortcut("Ctrl+D")
         self.shuffle = QAction("Shuffle")
         self.shuffle.setCheckable(True)
         self.repeatSong = QAction("Repeat")
