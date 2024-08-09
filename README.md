@@ -41,10 +41,10 @@ python3 src/main.py
 | Task | Status |
 |------|--------|
 | Make feature to open a playlist in new window | currently stalled |
-| Make a feature to play last 10 songs | not started |
-| Make a feature to hide or show certain columns | not started |
-| Make control menu | working |
-| Make song position slider | working |
+| Make a feature to play any of last 10 songs from history stored in database | done |
+| Make a feature to hide or show certain columns | done |
+| Make control menu | done |
+| Make song position slider | done |
 | Make table ui pretty | Not started |
 | Make a feature to sort songs based on column | not started |
 
@@ -72,7 +72,7 @@ python3 src/main.py
 * To implement draMake a feature to sort songs based on columng and drop feature between windows
 * To ensure that if 1 playlist open then other playlists are not opened
 
-### Make a feature to play last 10 songs
+### Make a feature to play any of last 10 songs from history stored in database
 
 * To make a table in database which gives last 10 songs played and we can give a play recent feature based on it
 
