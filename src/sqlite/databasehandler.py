@@ -18,8 +18,27 @@ class DatabaseHandler:
         for i in createTableSyntax:
             self.executeSqlQuery(i)
 
+    def getColumnsToShow(self):
+        query = "SELECT * from columnNameToShow;"
+        return [x[0] for x in self.executeSqlQuery(query) if x[1] == 1]
+
+    def setColumnName(self, columnName, value):
+        if columnName.lower() == "title":
+            value = 1
+        query = f"INSERT OR REPLACE INTO columnNameToShow(columnName, toShow) VALUES (\"{columnName.lower()}\",{value});"
+        self.executeSqlQuery(query)
+
+    def enableColumnName(self, columnName):
+        self.setColumnName(columnName, 1)
+
+    def disableColumnName(self, columnName):
+        if columnName.lower() == "title":
+            self.setColumnName(columnName, 1)
+        else:
+            self.setColumnName(columnName, 0)
+
     def getPlaylists(self):
-        query = "SELECT playlistName FROM playlistNameToPlaylistId"
+        query = "SELECT playlistName FROM playlistNameToPlaylistId;"
         return [x[0] for x in self.executeSqlQuery(query)]
 
     def getLastSongs(self, limit = 10):
@@ -99,7 +118,9 @@ class DatabaseHandler:
         return [x[0] for x in self.executeSqlQuery(query)]    
         
     def getSongData(self, songName):
-        query = f"SELECT sd.title, sd.artist, sd.album, sd.year, sd.genre, sd.comment FROM songNameToSongId sns INNER JOIN songDetails sd ON sns.songId = sd.songId WHERE sns.songName=\"{songName}\";"
+        columnsToShow = [f"sd.{x}" for x in self.getColumnsToShow()]
+
+        query = f"SELECT {', '.join(columnsToShow)} FROM songNameToSongId sns INNER JOIN songDetails sd ON sns.songId = sd.songId WHERE sns.songName=\"{songName}\";"
         return self.executeSqlQuery(query)
 
     def deleteSongData(self, playlistName, songName):
@@ -145,29 +166,10 @@ if __name__ == "__main__":
     import time
 
     object = DatabaseHandler()
-    object.writeSongDataToTable("library", "song1", "title1", "artist1", "album1", "year1", "genre1", "comment1")
-    object.writeSongDataToTable("library", "song2", "title2", "artist2", "album2", "year2", "genre2", "comment2")
-    object.writeSongDataToTable("playlist-1", "song1", "title1", "artist1", "album1", "year1", "genre1", "comment1")
-    object.writeSongDataToTable("playlist-1", "song2", "title2", "artist2", "album2", "year2", "genre2", "comment2")
-    object.writeSongDataToTable("playlist-2", "song1", "title1", "artist1", "album1", "year1", "genre1", "comment1")
-    object.writeSongDataToTable("playlist-2", "song2", "title2", "artist2", "album2", "year2", "genre2", "comment2")
-    print(object.getSongData("song1"))
-    print(object.getSongData("song2"))
 
-    os.system("date")
+    labelHeaderNames = ['Title', 'Artist', 'Album', 'Year', 'Genre', 'Comment'] 
 
-    for song in os.listdir("data/mp3-files"):
-        object.addSongToHistory(songName=os.path.join("data/mp3-files", song))
-
-    print("added songs 1")
-    time.sleep(10)
-
-    os.system("date")
-
-    for song in os.listdir("data/mp3-files"):
-        object.addSongToHistory(songName=os.path.join("data/mp3-files", song))
-
-    print("added songs 2")
-
-    print(len(object.getLastSongs()))
-
+    for i in labelHeaderNames:
+        object.enableColumnName(i)
+    
+    print(object.getColumnsToShow())

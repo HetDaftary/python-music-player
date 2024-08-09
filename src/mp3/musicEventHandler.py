@@ -73,8 +73,7 @@ class MusicEventHandler(QThread):
     @pyqtSlot(int)
     def setPosition(self, position):
         if self.songName != "":
-            self.player.setPosition(position)
-            
+            self.player.setPosition(position) 
 
     def getPosition(self):
         
@@ -161,5 +160,4 @@ class MusicEventHandler(QThread):
 
     @pyqtSlot(int, int)
     def setVolumeSlot(self, value, volume):
-        print("Setting volume", volume)
         self.setVolume(volume)

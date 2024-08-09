@@ -10,11 +10,14 @@ class TopWidget(QTableWidget):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
-        self.songSelectedByUser=-1
-        self.labelHeaderNames = ['Title', 'Artist', 'Album', 'Year', 'Genre', 'Comment']     
-
+        self.songSelectedByUser=-1     
         self.databaseObject = self.parent.databaseObject # MainWidget is the parent widget of TopWidget.
+        self.labelHeaderNames = [x.capitalize() for x in self.databaseObject.getColumnsToShow()]
+        
         # MainWidget has the databaseObject
+
+        self.horizontalHeader().setContextMenuPolicy(Qt.CustomContextMenu)
+        self.horizontalHeader().customContextMenuRequested.connect(self.showHeaderContextMenu)
 
         self.addMusicPathToDatabase()
 
@@ -29,6 +32,36 @@ class TopWidget(QTableWidget):
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.setSelectionMode(QTableWidget.SingleSelection)
 
+    def showHeaderContextMenu(self, pos):
+        header = self.horizontalHeader()
+        globalPos = header.mapToGlobal(pos)
+        logicalIndex = header.logicalIndexAt(pos)
+        
+        self.possibleLabels = ["Album", "Artist", "Comment", "Genre", "Year"]
+        
+        self.columnsToShow = self.databaseObject.getColumnsToShow()
+
+        contextMenu = QMenu(self)
+
+        actions = [QAction(x) for x in self.possibleLabels]
+        for x in actions:
+            x.setCheckable(True)
+            x.triggered.connect(lambda _, menuAction = x : self.headerContextMenuActions(menuAction))
+            contextMenu.addAction(x)
+            if x.text().lower() in self.columnsToShow:
+                x.setChecked(True)
+            else:
+                x.setChecked(False)
+
+        contextMenu.exec_(globalPos)
+
+    def headerContextMenuActions(self, menuAction):
+        if menuAction.isChecked():
+            self.parent.databaseObject.enableColumnName(menuAction.text())
+        else:
+            self.parent.databaseObject.disableColumnName(menuAction.text())
+        self.refreshPage(self.songs)
+
     def addMusicPathToDatabase(self):
         for file in os.listdir(self.parent.parent.MUSIC_PATH):
             songName = os.path.join(self.parent.parent.MUSIC_PATH, file)
@@ -38,6 +71,7 @@ class TopWidget(QTableWidget):
 
     def refreshPage(self, songs):
         self.songs = songs
+        self.labelHeaderNames = [x.capitalize() for x in self.databaseObject.getColumnsToShow()]
         
         self.clearContents()
 
