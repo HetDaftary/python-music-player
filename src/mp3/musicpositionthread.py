@@ -9,7 +9,7 @@ class MusicPositionThread(QThread):
         self.musicEventHandler = musicEventHandler
         self.lastSong = ""
         self.lastPos = 0
-        self.lastSongDuration = 0
+        self.lastSongDuration = 0 # To avoid playing of any song when thread starts.
         self.running = True
         self.delay = 1000
 
@@ -24,12 +24,14 @@ class MusicPositionThread(QThread):
     def run(self):
         while self.running:
             currentPos = self.musicEventHandler.getPosition()
-            if currentPos == self.lastSongDuration:
+            if self.lastSong !=  "" and (self.lastSongDuration - currentPos < self.delay):
+                print("Song finished")
                 self.parent.musicPositionSignal.emit(self.parent.MUSIC_END_CODE, currentPos)
                 self.lastSong =  ""
                 self.lastSongDuration = 0
             elif self.lastPos != 0 and currentPos == 0:
                 # Song stopped by user
+                print("Song stopped by user")
                 self.parent.musicPositionSignal.emit(self.parent.MUSIC_STOP_CODE, currentPos)
                 self.lastSong =  ""
                 self.lastSongDuration = 0
@@ -39,6 +41,7 @@ class MusicPositionThread(QThread):
                 self.lastSong = self.musicEventHandler.songName
                 self.lastPos = 0
                 self.lastSongDuration = self.musicEventHandler.getDuration(self.lastSong) if os.path.exists(self.lastSong) else 0 
+                print("New song started")
                 self.parent.musicPositionSignal.emit(self.parent.MUSIC_POSITION_UPDATE, currentPos)
             elif self.lastSong !=  "":
                 # If any song is playing keep updating the position counter

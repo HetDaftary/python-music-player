@@ -78,6 +78,11 @@ class DatabaseHandler:
             self.executeSqlQuery(query)
             return playlistIdList[0][0]
 
+    def getSongTitle(self, songName):
+        songId = self.getSongIdFromSongName(songName)
+        query = f"SELECT title FROM songDetails WHERE songId={songId};"
+        return self.executeSqlQuery(query)[0][0]
+
     def getSongIdFromSongName(self, songName):
         query=f"SELECT songId from songNameToSongId WHERE songName=\"{songName}\";"
         songIdList = self.executeSqlQuery(query)

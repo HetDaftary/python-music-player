@@ -44,13 +44,19 @@ class ControlMenu(QMenu):
         self.addAction(self.repeatSong)
 
     def addRecentSongs(self):
+        self.recentSongNames = self.parent.databaseObject.getLastSongs()
         self.recentSongs = []
+
+        titleToSongName = dict()
+        for songName in self.recentSongNames:
+            title = self.parent.databaseObject.getSongTitle(songName)
+            titleToSongName[title] = songName
 
         self.playRecentButton.clear()
 
-        for songName in self.parent.databaseObject.getLastSongs():
-            self.recentSongs.append(QAction(songName))
-            self.recentSongs[-1].triggered.connect(lambda _, songName = songName: self.playSelected(songName))
+        for songTitle in titleToSongName:
+            self.recentSongs.append(QAction(songTitle))
+            self.recentSongs[-1].triggered.connect(lambda _, songName = titleToSongName[songTitle]: self.playSelected(songName))
             self.playRecentButton.addAction(self.recentSongs[-1])
 
     def playSelected(self, songName):
