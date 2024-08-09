@@ -26,6 +26,10 @@ class DatabaseHandler:
         query = f"SELECT songName FROM songsInHistory ORDER BY playedAt DESC LIMIT {limit};"
         return [x[0] for x in self.executeSqlQuery(query)]
 
+    def deleteSongFromHistory(self, songName):
+        query = f"DELETE FROM songsInHistory WHERE songName=\"{songName}\";"
+        self.executeSqlQuery(query)
+
     def addSongToHistory(self, songName):
         query = f"INSERT INTO songsInHistory (songName) VALUES (\"{songName}\") ON CONFLICT(songName) DO UPDATE SET playedAt = CURRENT_TIMESTAMP;"
         self.executeSqlQuery(query)

@@ -20,12 +20,7 @@ class ControlMenu(QMenu):
         self.repeatSong = QAction("Repeat")
         self.repeatSong.setCheckable(True)
 
-        self.recentSongs = []
-
-        for songName in self.parent.databaseObject.getLastSongs():
-            self.recentSongs.append(QAction(songName))
-            self.recentSongs[-1].triggered.connect(lambda _, songName = songName: self.playSelected(songName))
-            self.playRecentButton.addAction(self.recentSongs[-1])
+        self.addRecentSongs()
 
         self.playButton.triggered.connect(self.mainWidget.playSelectedButtonAction)
         self.nextButton.triggered.connect(self.mainWidget.nextButtonAction)
@@ -48,8 +43,17 @@ class ControlMenu(QMenu):
         self.addAction(self.shuffle)
         self.addAction(self.repeatSong)
 
+    def addRecentSongs(self):
+        self.recentSongs = []
+
+        self.playRecentButton.clear()
+
+        for songName in self.parent.databaseObject.getLastSongs():
+            self.recentSongs.append(QAction(songName))
+            self.recentSongs[-1].triggered.connect(lambda _, songName = songName: self.playSelected(songName))
+            self.playRecentButton.addAction(self.recentSongs[-1])
+
     def playSelected(self, songName):
-        print(songName)
         for i in range(0, len(self.mainWidget.topWidget.songs)):
             if songName == self.mainWidget.topWidget.songs[i]:
                 self.mainWidget.topWidget.songSelectedByUser = i

@@ -98,6 +98,7 @@ class MainWidget(QWidget):
         self.songIndex = self.topWidget.songSelectedByUser
         self.databaseObject.addSongToHistory(self.topWidget.songs[self.songIndex])
         self.songDurationSliderWidget.setForNewSong(self.musicEventHandler.getDuration(self.topWidget.songs[self.songIndex]))
+        self.parent.controlMenu.addRecentSongs()
 
     def previousButtonAction(self):
         if self.shuffleSongs:
@@ -107,6 +108,7 @@ class MainWidget(QWidget):
         self.musicEventHandler.PLAY_NEW_SIGNAL.emit(self.musicEventHandler.PLAY_SELECTED, self.topWidget.songs[self.songIndex]) 
         self.databaseObject.addSongToHistory(self.topWidget.songs[self.songIndex])
         self.songDurationSliderWidget.setForNewSong(self.musicEventHandler.getDuration(self.topWidget.songs[self.songIndex]))
+        self.parent.controlMenu.addRecentSongs()
 
     def playPauseButtonAction(self):
         if self.songIndex == -1:
@@ -114,6 +116,7 @@ class MainWidget(QWidget):
             self.musicEventHandler.PLAY_NEW_SIGNAL.emit(self.musicEventHandler.PLAY_SELECTED, self.topWidget.songs[self.songIndex])
         else:
             self.musicEventHandler.MUSIC_CONTROL_SIGNAL.emit(self.musicEventHandler.PLAY_PAUSE)
+        self.parent.controlMenu.addRecentSongs()
 
     def nextButtonAction(self):
         if self.shuffleSongs:
@@ -123,6 +126,7 @@ class MainWidget(QWidget):
         self.musicEventHandler.PLAY_NEW_SIGNAL.emit(self.musicEventHandler.PLAY_SELECTED, self.topWidget.songs[self.songIndex])
         self.songDurationSliderWidget.setForNewSong(self.musicEventHandler.getDuration(self.topWidget.songs[self.songIndex]))
         self.databaseObject.addSongToHistory(self.topWidget.songs[self.songIndex])
+        self.parent.controlMenu.addRecentSongs()
 
     def stopButtonAction(self):
         self.musicEventHandler.MUSIC_CONTROL_SIGNAL.emit(self.musicEventHandler.STOP)
@@ -295,7 +299,8 @@ class MainWidget(QWidget):
                 songName = songs[i]
                 self.databaseObject.deleteSongData(self.parent.selectedPlaylist, songName)
 
-                if self.parent.selectedPlaylist == "library":
+                if self.parent.selectedPlaylist.lower() == "library":
                     os.remove(songName)
-        
+                    self.databaseObject.deleteSongFromHistory(songName)    
+                    self.parent.controlMenu.addRecentSongs()
         self.refreshTopWidget()
