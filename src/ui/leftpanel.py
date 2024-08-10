@@ -1,7 +1,9 @@
 import os
 
-from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem, QInputDialog, QMessageBox, QMenu, QAction, QAbstractItemView
+from PyQt5.QtWidgets import QMessageBox, QTreeWidget, QTreeWidgetItem, QInputDialog, QMessageBox, QMenu, QAction, QAbstractItemView
 from PyQt5.QtCore import Qt
+
+from ui.singleplaylistwindow import SinglePlaylistWindow
 
 class LeftPanel(QTreeWidget):
     def __init__(self, databaseObject, parent=None):
@@ -13,11 +15,17 @@ class LeftPanel(QTreeWidget):
         self.currentlySelectedPlaylist = "Library"
         self.databaseObject = databaseObject
 
+        self.getRrequiredMainWindowParameters()
         self.initLibrarySongs()
         self.initPlaylistSongs()
 
+        self.singleWindowRunning = False
+        self.setSelectionMode(QTreeWidget.SingleSelection)
         self.itemSelectionChanged.connect(self.onItemSelected)
         self.itemDoubleClicked.connect(self.onItemDoubleClicked)
+
+    def getRrequiredMainWindowParameters(self):
+        self.MUSIC_PATH = self.parent.MUSIC_PATH
 
     def onItemSelected(self):
         selectedItem = self.currentItem()
@@ -29,7 +37,7 @@ class LeftPanel(QTreeWidget):
         contextMenu = QMenu(self)
 
         openInNewWindowAction = QAction('Open in New Window', self)
-        #openInNewWindowAction.triggered.connect(lambda: self.action_triggered('Action 1'))
+        openInNewWindowAction.triggered.connect(lambda _, playlistName = self.selectedItems()[0].text(0): self.handleSinglePlaylistWindow(playlistName))
         contextMenu.addAction(openInNewWindowAction)
 
         contextMenu.addSeparator()
@@ -39,6 +47,30 @@ class LeftPanel(QTreeWidget):
         contextMenu.addAction(deletePlaylistAction)
 
         contextMenu.exec_(event.globalPos())
+
+    def handleSinglePlaylistWindow(self, playlistName):
+        if playlistName.lower() == "library" or playlistName.lower() == "playlist":
+            return None 
+        if self.singleWindowRunning:
+            QMessageBox.critical(self, "Cannot open 2 single playlist windows", "Please close first single playlist window before opening another")
+            return None
+
+        self.selectedPlaylist = playlistName
+        self.singlePlaylistWindow = SinglePlaylistWindow(playlistName, self.databaseObject, self.parent.musicEventHandler, self)
+        
+        self.MUSIC_END_CODE = self.parent.MUSIC_END_CODE
+        self.SWITCH_TO_PAUSE = self.parent.SWITCH_TO_PAUSE
+        self.SWITCH_TO_PLAY = self.parent.SWITCH_TO_PLAY
+        self.SWITCH_TO_RESUME = self.parent.SWITCH_TO_RESUME
+        self.SONG_PLAYING_CODE = self.parent.SONG_PLAYING_CODE
+        self.REFRESH_SONGS_SIGNAL = self.parent.REFRESH_SONGS_SIGNAL
+        self.SET_VOLUME = self.parent.SET_VOLUME
+
+        self.controlMenu = self.singlePlaylistWindow.controlMenu
+        self.fileMenu = self.singlePlaylistWindow.fileMenu
+
+        self.parent.selectedPlaylist = "Library"
+        self.parent.mainWidget.refreshTopWidget()
 
     def deletePlaylist(self):
         playlistWidget = self.currentItem()

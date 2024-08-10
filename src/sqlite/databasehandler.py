@@ -19,8 +19,13 @@ class DatabaseHandler:
             self.executeSqlQuery(i)
 
     def getColumnsToShow(self):
-        query = "SELECT * from columnNameToShow;"
-        return [x[0] for x in self.executeSqlQuery(query) if x[1] == 1]
+        columnNames = ["title", "artist", "album", "genre", "year", "comment"]
+        toShowResult = []
+        for column in columnNames:
+            query = f"SELECT * from columnNameToShow WHERE columnName=\"{column}\";"
+            tempResult = self.executeSqlQuery(query)
+            toShowResult.append([column, 1] if len(tempResult) == 0 else tempResult[0])
+        return [x[0] for x in toShowResult if x[1] == 1]
 
     def setColumnName(self, columnName, value):
         if columnName.lower() == "title":
@@ -77,6 +82,10 @@ class DatabaseHandler:
             query=f"INSERT INTO playlistNameToPlaylistId(playlistName, playlistId) VALUES (\"{playlistName}\", {playlistIdList[0][0]})"
             self.executeSqlQuery(query)
             return playlistIdList[0][0]
+
+    def getSongNameFromTitle(self, songTitle):
+        query = f"SELECT sn.songName FROM songDetails sd JOIN songNameToSongId sn ON sd.songId = sn.songId WHERE sd.title = \"{songTitle}\";"
+        return self.executeSqlQuery(query)[0][0]
 
     def getSongTitle(self, songName):
         songId = self.getSongIdFromSongName(songName)
@@ -172,9 +181,4 @@ if __name__ == "__main__":
 
     object = DatabaseHandler()
 
-    labelHeaderNames = ['Title', 'Artist', 'Album', 'Year', 'Genre', 'Comment'] 
-
-    for i in labelHeaderNames:
-        object.enableColumnName(i)
-    
-    print(object.getColumnsToShow())
+    print(object.getSongNameFromTitle("Happy"))

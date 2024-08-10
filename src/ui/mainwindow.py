@@ -20,7 +20,7 @@ from sqlite.databasehandler import DatabaseHandler
 
 class MainWindow(QMainWindow):
     MUSIC_PATH="data/mp3-files" # This is a static variable of this class.
-    SWITCH_TO_RESUME = 10 # Values to change UI play pause button. 
+    SWITCH_TO_PLAY = 10 # Values to change UI play pause button. 
     SWITCH_TO_PAUSE = 11 # These will be catched by slots in UI/main thread.
     SWITCH_TO_RESUME = 12
     SONG_PLAYING_CODE = 13 # For the signal to tell about which song is playing.
@@ -63,8 +63,6 @@ class MainWindow(QMainWindow):
         self.mainWidget = MainWidget(self.databaseObject, self.musicEventHandler, self)
         self.leftPanel = LeftPanel(self.mainWidget.databaseObject, self)
         
-        self.singlePlaylistWindow = SinglePlaylistWindow(self.databaseObject, self.musicEventHandler, self)
-
         self.splitter = QSplitter(Qt.Horizontal)
 
         self.splitter.addWidget(self.leftPanel)
@@ -111,18 +109,27 @@ class MainWindow(QMainWindow):
     @pyqtSlot(int, int)
     def songPositionHandle(self, val, position):
         self.mainWidget.songPositionHandle(val, position)
+        if self.leftPanel.singleWindowRunning:
+            self.leftPanel.singlePlaylistWindow.songPositionHandle(val, position)
+
 
     @pyqtSlot()
     def handleDeselectSong(self):
         self.mainWidget.handleDeselectSong()
+        if self.leftPanel.singleWindowRunning:
+            self.leftPanel.singlePlaylistWindow.handleDeselectSong()
 
     @pyqtSlot(int)
     def handlePlayPauseButton(self, value):
         self.mainWidget.handlePlayPauseButton(value)
+        if self.leftPanel.singleWindowRunning:
+            self.leftPanel.singlePlaylistWindow.handlePlayPauseButton(value)
 
     @pyqtSlot(int, str)
     def handleSongPlaying(self, value, songName):
         self.mainWidget.handleSongPlaying(value, songName)
+        if self.leftPanel.singleWindowRunning:
+            self.leftPanel.singlePlaylistWindow.handleSongPlaying(value, songName)
 
     # Defining this to stop pygame thread.
     def closeEvent(self, event):

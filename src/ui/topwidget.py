@@ -21,13 +21,16 @@ class TopWidget(QTableWidget):
 
         self.addMusicPathToDatabase()
 
-        self.setSortingEnabled(True)
+        self.setAcceptDrops(True)
+        self.setDragDropMode(True)
+        self.setDragDropMode(QTableWidget.InternalMove)
+        self.setSelectionBehavior(QTableWidget.SelectRows)
+
+        #self.setSortingEnabled(True)
         self.refreshPage(self.databaseObject.getSongs("library"))
         self.setSelectionBehavior(QTableWidget.SelectRows)
         self.cellClicked.connect(self.handleCellClicked)
         #self.itemDoubleClicked.connect(self.parent.playSelectedButtonAction) # Double click event would trigger play selected.
-        self.setAcceptDrops(True)
-        self.setDragDropMode(True)
         self.verticalHeader().setVisible(False)
         self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.setWordWrap(True)
@@ -42,7 +45,6 @@ class TopWidget(QTableWidget):
         self.possibleLabels = ["Album", "Artist", "Comment", "Genre", "Year"]
         
         self.columnsToShow = self.databaseObject.getColumnsToShow()
-
         contextMenu = QMenu(self)
 
         actions = [QAction(x) for x in self.possibleLabels]
@@ -105,6 +107,20 @@ class TopWidget(QTableWidget):
         self.songSelectedByUser = i
 
     def dragEnterEvent(self, event: QDropEvent):
+        print("Something dropped")
+        sourceTable = event.source()
+        if sourceTable == self:
+            super().dropEvent(event)
+            return None
+        else:
+            # Assuming we're dropping a row from another table
+            selectedRows = sourceTable.selectionModel().selectedRows()
+            for index in selectedRows:
+                row = index.row()
+                title = sourceTable.item(row, 0).text()
+                songName = self.databaseObject.getSongNameFromTitle(title)
+                self.parent.addSongWithPath(songName)
+
         if event.mimeData().hasText():
             filesGiven = event.mimeData().text().strip().split('\n')
             for file in filesGiven:
