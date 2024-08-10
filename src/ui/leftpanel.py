@@ -11,6 +11,7 @@ class LeftPanel(QTreeWidget):
         self.setSelectionMode(QAbstractItemView.SingleSelection)
 
         self.currentlySelectedPlaylist = "Library"
+        self.databaseObject = databaseObject
 
         self.initLibrarySongs()
         self.initPlaylistSongs()
@@ -48,7 +49,7 @@ class LeftPanel(QTreeWidget):
                 buttonPressed = QMessageBox.warning(self, "Confirm to delete playlist", f"Do you want to delete playlist: {playlistName}?", QMessageBox.Yes | QMessageBox.No)
                 if buttonPressed == QMessageBox.Yes:
                     self.libraryItem.setSelected(True)
-                    self.parent.mainWidget.databaseObject.deletePlaylist(playlistName)
+                    self.databaseObject.deletePlaylist(playlistName)
 
                     index = self.indexOfTopLevelItem(playlistWidget)
                     if index != -1:

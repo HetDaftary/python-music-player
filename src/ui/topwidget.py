@@ -21,11 +21,13 @@ class TopWidget(QTableWidget):
 
         self.addMusicPathToDatabase()
 
+        self.setSortingEnabled(True)
         self.refreshPage(self.databaseObject.getSongs("library"))
         self.setSelectionBehavior(QTableWidget.SelectRows)
         self.cellClicked.connect(self.handleCellClicked)
         #self.itemDoubleClicked.connect(self.parent.playSelectedButtonAction) # Double click event would trigger play selected.
         self.setAcceptDrops(True)
+        self.setDragDropMode(True)
         self.verticalHeader().setVisible(False)
         self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.setWordWrap(True)
@@ -96,6 +98,8 @@ class TopWidget(QTableWidget):
                 if j != len(self.labelNames[i]) - 1: 
                     # Only allow comments to be editable
                     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+
+        self.sortItems(0) 
 
     def handleCellClicked(self, i, j):
         self.songSelectedByUser = i
