@@ -107,7 +107,6 @@ class TopWidget(QTableWidget):
         self.songSelectedByUser = i
 
     def dragEnterEvent(self, event: QDropEvent):
-        print("Something dropped")
         sourceTable = event.source()
         if sourceTable == self:
             super().dropEvent(event)
