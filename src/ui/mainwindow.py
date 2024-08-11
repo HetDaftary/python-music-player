@@ -138,6 +138,9 @@ class MainWindow(QMainWindow):
         
     # Defining this to stop pygame thread.
     def closeEvent(self, event):
+        if not self.singlePlaylist and self.leftPanel.singleWindowRunning:
+            self.leftPanel.singlePlaylistWindow.stop()
+
         self.musicPositionThread.stop()
         self.musicPositionThread.wait()
         self.musicEventHandler.stop()
