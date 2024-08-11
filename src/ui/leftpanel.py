@@ -56,21 +56,8 @@ class LeftPanel(QTreeWidget):
             return None
 
         self.selectedPlaylist = playlistName
-        self.singlePlaylistWindow = SinglePlaylistWindow(playlistName, self.databaseObject, self.parent.musicEventHandler, self)
-        
-        self.MUSIC_END_CODE = self.parent.MUSIC_END_CODE
-        self.SWITCH_TO_PAUSE = self.parent.SWITCH_TO_PAUSE
-        self.SWITCH_TO_PLAY = self.parent.SWITCH_TO_PLAY
-        self.SWITCH_TO_RESUME = self.parent.SWITCH_TO_RESUME
-        self.SONG_PLAYING_CODE = self.parent.SONG_PLAYING_CODE
-        self.REFRESH_SONGS_SIGNAL = self.parent.REFRESH_SONGS_SIGNAL
-        self.SET_VOLUME = self.parent.SET_VOLUME
-
-        self.controlMenu = self.singlePlaylistWindow.controlMenu
-        self.fileMenu = self.singlePlaylistWindow.fileMenu
-
-        self.parent.selectedPlaylist = "Library"
-        self.parent.mainWidget.refreshTopWidget()
+        self.singlePlaylistWindow = SinglePlaylistWindow(playlistName, self)
+        self.singlePlaylistWindow.start()
 
     def deletePlaylist(self):
         playlistWidget = self.currentItem()

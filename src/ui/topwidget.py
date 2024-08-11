@@ -3,8 +3,8 @@ import urllib.parse
 import sys
 
 from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QSizePolicy, QMenu, QAction, QHeaderView
-from PyQt5.QtCore import Qt, QUrl
-from PyQt5.QtGui import QDropEvent
+from PyQt5.QtCore import Qt, QMimeData
+from PyQt5.QtGui import QDropEvent, QDrag
 from mp3.musicEventHandler import MusicEventHandler
 
 class TopWidget(QTableWidget):
@@ -116,18 +116,38 @@ class TopWidget(QTableWidget):
     def handleCellClicked(self, i, j):
         self.songSelectedByUser = i
 
+    def startDrag(self, event):
+        selectedItems = self.selectedItems()
+        if selectedItems:
+            drag = QDrag(self)
+            mimeData = QMimeData()
+
+            # Group row data by rows, separated by a newline, and columns by a tab
+            rowsData = []
+            selectedRows = sorted(set(item.row() for item in selectedItems))
+
+            for row in selectedRows:
+                rowData = "\t".join(self.item(row, col).text() if self.item(row, col) else "" for col in range(self.columnCount()))
+                rowsData.append(rowData)
+
+            # Join all rows data with newlines to form the final MIME text
+            mimeData.setText("\n".join(rowsData))
+
+            drag.setMimeData(mimeData)
+            drag.exec_(Qt.CopyAction | Qt.MoveAction)
+
     def dragEnterEvent(self, event: QDropEvent):
         sourceTable = event.source()
         if sourceTable == self:
             self.refreshPage(self.songs)
             return None
         else:
-            # Assuming we're dropping a row from another table
-            selectedRows = sourceTable.selectionModel().selectedRows()
-            for index in selectedRows:
-                row = index.row()
-                title = sourceTable.item(row, 0).text()
-                songName = self.databaseObject.getSongNameFromTitle(title)
+            rowsData = event.mimeData().text().split('\n')
+
+            for rowData in rowsData:
+                columns = rowData.split('\t')
+
+                songName = self.databaseObject.getSongNameFromTitle(columns[0])
                 self.parent.addSongWithPath(songName)
 
         if event.mimeData().hasText():

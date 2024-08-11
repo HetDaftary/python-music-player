@@ -283,7 +283,6 @@ class MainWidget(QWidget):
 
     def deleteSong(self):
         songs = self.databaseObject.getSongs(self.parent.selectedPlaylist)
-        
         collectRows = set()
 
         if self.topWidget.selectedItems():
