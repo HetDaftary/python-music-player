@@ -40,8 +40,6 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.handleArgv(argv)
 
-        self.setWindowTitle("My Tunes")
-
         # Set size
         self.app = app
         screenSize = self.app.primaryScreen().size() 
@@ -59,8 +57,10 @@ class MainWindow(QMainWindow):
         self.mainWidget = MainWidget(self.databaseObject, self.musicEventHandler, self)
         
         if self.singlePlaylist:
+            self.setWindowTitle(self.selectedPlaylist)
             self.setCentralWidget(self.mainWidget)
         else:
+            self.setWindowTitle("My Tunes")
             self.leftPanel = LeftPanel(self.mainWidget.databaseObject, self)
 
             self.splitter = QSplitter(Qt.Horizontal)
