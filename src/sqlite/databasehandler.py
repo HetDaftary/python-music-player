@@ -62,6 +62,7 @@ class DatabaseHandler:
         self.getPlaylistIdFromName(playlistName)
 
     def deletePlaylist(self, playlistName):
+        playlistName = playlistName.lower()
         playlistId = self.getPlaylistIdFromName(playlistName)
         
         query = f"DELETE FROM playlistNameToPlaylistId WHERE playlistName=\"{playlistName}\";"
@@ -70,6 +71,7 @@ class DatabaseHandler:
         self.executeSqlQuery(query)
 
     def getPlaylistIdFromName(self, playlistName):
+        playlistName = playlistName.lower()
         query = f"SELECT playlistId from playlistNameToPlaylistId WHERE playlistName=\"{playlistName}\";"
         playlistIdList = self.executeSqlQuery(query)
 
