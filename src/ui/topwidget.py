@@ -36,7 +36,7 @@ class TopWidget(QTableWidget):
         self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.setWordWrap(True)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.setSelectionMode(QTableWidget.SingleSelection)
+        #self.setSelectionMode(QTableWidget.SingleSelection)
 
     def showHeaderContextMenu(self, pos):
         header = self.horizontalHeader()
