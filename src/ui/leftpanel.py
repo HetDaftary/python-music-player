@@ -105,10 +105,10 @@ class LeftPanel(QTreeWidget):
         self.playlistItem = QTreeWidgetItem(["Playlist"])
         self.addTopLevelItem(self.playlistItem)
 
-        playlistsToAdd = self.parent.mainWidget.databaseObject.getPlaylists()
+        playlistsToAdd = [x.capitalize() for x in self.parent.mainWidget.databaseObject.getPlaylists()]
 
         for playlistName in playlistsToAdd:
-            if playlistName != "library":
+            if playlistName.lower() != "library":
                 item = QTreeWidgetItem([playlistName])
                 self.playlistItem.addChild(item)
 
