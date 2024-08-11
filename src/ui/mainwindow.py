@@ -36,8 +36,9 @@ class MainWindow(QMainWindow):
     DESELECT_SONG_ON_TABLE = pyqtSignal(name = "deselectTheSelectSong")
     musicPositionSignal = pyqtSignal(int, int, name = "givesMusicPosition") # Song 
 
-    def __init__(self, app):
+    def __init__(self, app, argv):
         super().__init__()
+        self.handleArgv(argv)
 
         self.setWindowTitle("My Tunes")
 
@@ -46,11 +47,6 @@ class MainWindow(QMainWindow):
         screenSize = self.app.primaryScreen().size() 
         self.resize(screenSize.width() // 2, screenSize.height() // 2)
 
-        self.centralWidget = QWidget(self)
-        self.layout = QVBoxLayout()
-        self.centralWidget.setLayout(self.layout)
-
-        self.selectedPlaylist = "Library"
 
         # Init database 
         self.databaseObject = DatabaseHandler()
@@ -61,20 +57,28 @@ class MainWindow(QMainWindow):
 
         # Set left panel and main widget
         self.mainWidget = MainWidget(self.databaseObject, self.musicEventHandler, self)
-        self.leftPanel = LeftPanel(self.mainWidget.databaseObject, self)
         
-        self.splitter = QSplitter(Qt.Horizontal)
+        if self.singlePlaylist:
+            self.setCentralWidget(self.mainWidget)
+        else:
+            self.leftPanel = LeftPanel(self.mainWidget.databaseObject, self)
 
-        self.splitter.addWidget(self.leftPanel)
-        self.splitter.addWidget(self.mainWidget)
+            self.splitter = QSplitter(Qt.Horizontal)
 
-        # Set the stretch factors
-        self.splitter.setStretchFactor(0, 1)
-        self.splitter.setStretchFactor(1, 7)
+            self.centralWidget = QWidget(self)
+            self.layout = QVBoxLayout()
+            self.centralWidget.setLayout(self.layout)
 
-        self.layout.addWidget(self.splitter)
+            self.splitter.addWidget(self.leftPanel)
+            self.splitter.addWidget(self.mainWidget)
 
-        self.setCentralWidget(self.centralWidget)
+            # Set the stretch factors
+            self.splitter.setStretchFactor(0, 1)
+            self.splitter.setStretchFactor(1, 7)
+
+            self.layout.addWidget(self.splitter)
+
+            self.setCentralWidget(self.centralWidget)
 
         # Start music handler threads
         self.musicEventHandler.start()
@@ -95,6 +99,16 @@ class MainWindow(QMainWindow):
         # Show main window
         self.show()
 
+    def handleArgv(self, argv):
+        if len(argv) > 1:
+            for arg in argv:
+                if arg.startswith("--single-playlist="):
+                    self.selectedPlaylist = arg.split("=")[1]
+                    self.singlePlaylist = True
+                    return None
+        self.selectedPlaylist = "Library"
+        self.singlePlaylist = False
+
     def initSignals(self):
         # Init top widget signals
         self.DESELECT_SONG_ON_TABLE.connect(self.handleDeselectSong)
@@ -109,28 +123,19 @@ class MainWindow(QMainWindow):
     @pyqtSlot(int, int)
     def songPositionHandle(self, val, position):
         self.mainWidget.songPositionHandle(val, position)
-        if self.leftPanel.singleWindowRunning:
-            self.leftPanel.singlePlaylistWindow.songPositionHandle(val, position)
-
-
+        
     @pyqtSlot()
     def handleDeselectSong(self):
         self.mainWidget.handleDeselectSong()
-        if self.leftPanel.singleWindowRunning:
-            self.leftPanel.singlePlaylistWindow.handleDeselectSong()
-
+        
     @pyqtSlot(int)
     def handlePlayPauseButton(self, value):
         self.mainWidget.handlePlayPauseButton(value)
-        if self.leftPanel.singleWindowRunning:
-            self.leftPanel.singlePlaylistWindow.handlePlayPauseButton(value)
-
+        
     @pyqtSlot(int, str)
     def handleSongPlaying(self, value, songName):
         self.mainWidget.handleSongPlaying(value, songName)
-        if self.leftPanel.singleWindowRunning:
-            self.leftPanel.singlePlaylistWindow.handleSongPlaying(value, songName)
-
+        
     # Defining this to stop pygame thread.
     def closeEvent(self, event):
         self.musicPositionThread.stop()
@@ -139,18 +144,18 @@ class MainWindow(QMainWindow):
         self.musicEventHandler.wait()
         self.databaseObject.cur.close()
         self.databaseObject.conn.close()
-        QApplication.quit()
+        event.accept()
 
     def initMenu(self):
         self.menubar = QMenuBar(self)
-        self.fileMenu = FileMenu(True, self) # This class has 2 optional variables so I need to write which variable should self be assigned to 
+        self.fileMenu = FileMenu(not self.singlePlaylist, self) # This class has 2 optional variables so I need to write which variable should self be assigned to 
         self.menubar.addMenu(self.fileMenu)
 
         self.fileMenu.openSongAction.triggered.connect(self.mainWidget.openAndPlayAMp3)
         self.fileMenu.exitAppAction.triggered.connect(lambda _: self.closeEvent(0))
         self.fileMenu.addSongAction.triggered.connect(self.mainWidget.addSong)
         self.fileMenu.deleteSongAction.triggered.connect(self.mainWidget.deleteSong)
-        if self.fileMenu.isMainMenu:
+        if not self.singlePlaylist and self.fileMenu.isMainMenu:
             self.fileMenu.createPlaylistAction.triggered.connect(self.leftPanel.createPlaylist)
 
         self.controlMenu = ControlMenu(self.mainWidget, self)

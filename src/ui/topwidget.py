@@ -1,5 +1,6 @@
 import os
 import urllib.parse
+import sys
 
 from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QSizePolicy, QMenu, QAction, QHeaderView
 from PyQt5.QtCore import Qt, QUrl
@@ -27,7 +28,7 @@ class TopWidget(QTableWidget):
         self.setSelectionBehavior(QTableWidget.SelectRows)
 
         #self.setSortingEnabled(True)
-        self.refreshPage(self.databaseObject.getSongs("library"))
+        self.refreshPage(self.databaseObject.getSongs(self.parent.parent.selectedPlaylist))
         self.setSelectionBehavior(QTableWidget.SelectRows)
         self.cellClicked.connect(self.handleCellClicked)
         #self.itemDoubleClicked.connect(self.parent.playSelectedButtonAction) # Double click event would trigger play selected.
@@ -76,7 +77,7 @@ class TopWidget(QTableWidget):
     def refreshPage(self, songs):
         self.songs = songs
         self.labelHeaderNames = [x.capitalize() for x in self.databaseObject.getColumnsToShow()]
-        
+
         self.clearContents()
 
         self.setRowCount(len(songs))
@@ -101,7 +102,16 @@ class TopWidget(QTableWidget):
                     # Only allow comments to be editable
                     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
 
-        self.sortItems(0) 
+        index = sys.maxsize
+        currentlyPlayingSong = self.parent.musicEventHandler.getSongPlaying()
+
+        if currentlyPlayingSong != "":
+            for i in range(0, len(self.songs)):
+                if self.songs[i] == currentlyPlayingSong:
+                    index = i
+                    break
+
+            self.parent.highlightRow(index)
 
     def handleCellClicked(self, i, j):
         self.songSelectedByUser = i
@@ -109,7 +119,7 @@ class TopWidget(QTableWidget):
     def dragEnterEvent(self, event: QDropEvent):
         sourceTable = event.source()
         if sourceTable == self:
-            super().dropEvent(event)
+            self.refreshPage(self.songs)
             return None
         else:
             # Assuming we're dropping a row from another table
@@ -127,7 +137,9 @@ class TopWidget(QTableWidget):
                 file = urllib.parse.unquote(file)
                 if file.startswith("file://") and file.endswith(".mp3"):
                     self.parent.addSongWithPath(file[7:]) # converting file url to normal file.
-    
+
+        self.refreshPage(self.songs)
+
     def dropEvent(self, event: QDropEvent):
         for url in event.mimeData().urls():
             filePath = url.toLocalFile()

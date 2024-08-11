@@ -157,17 +157,12 @@ class MainWidget(QWidget):
                 songData = self.musicEventHandler.getSongData(songName)
                 songTitle = songData[0]
 
-        self.bottomWidget.songPlayingLabel.setText(f"Playing song : {songTitle}" if songTitle != "" else "")
+        self.bottomWidget.songPlayingLabel.setText(f"{songTitle}" if songTitle != "" else "")
         self.setSongPlayingSignalButtonBorder()
 
         songs = self.databaseObject.getSongs(self.parent.selectedPlaylist)
-
-        for i in range(len(songs)):
-            if songName == songs[i]:
-                self.highlightRow(i)
-                return None
-            
-        self.highlightRow(sys.maxsize)
+        
+        self.topWidget.refreshPage(songs)
 
     def highlightRow(self, row):
         for i in range(self.topWidget.rowCount()):

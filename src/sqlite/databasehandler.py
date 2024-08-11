@@ -129,8 +129,11 @@ class DatabaseHandler:
         else:
             playlistId = self.getPlaylistIdFromName(playlistName)
             query = f"SELECT sns.songName FROM playlistIdToSongId pts INNER JOIN songNameToSongId sns ON pts.songId = sns.songId WHERE pts.playlistId = {playlistId};"
-        return [x[0] for x in self.executeSqlQuery(query)]    
+        unsortedSongs = [x[0] for x in self.executeSqlQuery(query)]
         
+        # Sending songs based on title.
+        return [x[1] for x in sorted([[self.getSongTitle(song), song] for song in unsortedSongs], key=lambda x : x[0])]
+
     def getSongData(self, songName):
         columnsToShow = [f"sd.{x}" for x in self.getColumnsToShow()]
 

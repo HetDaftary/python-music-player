@@ -75,10 +75,11 @@ class MusicEventHandler(QThread):
         if self.songName != "":
             self.player.setPosition(position) 
 
+    def getSongPlaying(self):
+        return self.songName
+
     def getPosition(self):
-        
         position = self.player.position()
-        
         return position
 
     def playNew(self, songName: str):
