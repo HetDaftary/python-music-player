@@ -2,6 +2,8 @@ from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QSiz
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon
 
+from ui.volumeslider import VolumeSlider
+
 class BottomWidget(QWidget):
     def __init__(self, parent = None):
         super().__init__()
@@ -55,5 +57,8 @@ class BottomWidget(QWidget):
         self.stopButton.setIconSize(QSize(32, 32))
         self.stopButton.setFixedSize(QSize(48, 48))
         self.buttonsLayout.addWidget(self.stopButton)
+
+        self.volumeSlider = VolumeSlider(self.buttonsWidget)
+        self.buttonsLayout.addWidget(self.volumeSlider)
 
         self.layout.addWidget(self.buttonsWidget)

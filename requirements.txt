@@ -1,6 +1,2 @@
 pyqt5
-pyqt5-tools
-pygame
 mutagen
-pysqlite3
-qt-material

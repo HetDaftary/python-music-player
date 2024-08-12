@@ -1,27 +1,92 @@
-from PyQt5.QtWidgets import QMainWindow, QMenu, QAction, QMenuBar, QApplication
+import sys
+
+from PyQt5.QtWidgets import QMainWindow, QMenuBar, QApplication, QSplitter, QWidget, QVBoxLayout
 from PyQt5.QtGui import QFontDatabase
+from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 
-USE_QT_MATERIAL=False
-
-if USE_QT_MATERIAL:
-    from qt_material import apply_stylesheet, list_themes
-
+# Importing necessary classes for UI
+from ui.filemenu import FileMenu
+from ui.controlmenu import ControlMenu
 from ui.mainwidget import MainWidget
+from ui.leftpanel import LeftPanel
+from ui.singleplaylistwindow import SinglePlaylistWindow
+from ui.refreshplaylistapp import RefreshPlaylistApp
+
+# Importing necessary classes for handling music
+from mp3.musicEventHandler import MusicEventHandler
+from mp3.musicpositionthread import MusicPositionThread
+
+# Import necessary classes for handling database
+from sqlite.databasehandler import DatabaseHandler
 
 class MainWindow(QMainWindow):
-    def __init__(self, app):
-        super().__init__()
+    MUSIC_PATH="data/mp3-files" # This is a static variable of this class.
+    SWITCH_TO_PLAY = 10 # Values to change UI play pause button. 
+    SWITCH_TO_PAUSE = 11 # These will be catched by slots in UI/main thread.
+    SWITCH_TO_RESUME = 12
+    SONG_PLAYING_CODE = 13 # For the signal to tell about which song is playing.
+    REFRESH_SONGS_SIGNAL = 14
+    SET_VOLUME = 15
 
-        self.setWindowTitle("MyTunes")
+    MUSIC_POSITION_UPDATE = 100 # Position update given
+    MUSIC_END_CODE = 101 # Music ends naturally
+    MUSIC_STOP_CODE = 102 # Music stopped by user
+
+    MUSIC_CONTROL_SIGNAL = pyqtSignal(int, name = "playPauseHandle") # Signal to throw for making event.
+    songPlayingSignal = pyqtSignal(int, str, name = "tellsWhichSongIsPlaying") # tells which song is getting played
+    DESELECT_SONG_ON_TABLE = pyqtSignal(name = "deselectTheSelectSong")
+    musicPositionSignal = pyqtSignal(int, int, name = "givesMusicPosition") # Song 
+    REFRESH_SONGS = pyqtSignal(name = "refreshTopWidget")
+
+    def __init__(self, app, argv):
+        super().__init__()
+        self.handleArgv(argv)
 
         # Set size
         self.app = app
         screenSize = self.app.primaryScreen().size() 
         self.resize(screenSize.width() // 2, screenSize.height() // 2)
 
-        # Set main widget
-        self.mainWidget = MainWidget(self)
-        self.setCentralWidget(self.mainWidget)
+        # Init database 
+        self.databaseObject = DatabaseHandler()
+
+        # Init music player
+        self.musicEventHandler = MusicEventHandler(self)
+        self.musicPositionThread = MusicPositionThread(self.musicEventHandler, self)
+
+        self.refreshPlaylistApp = RefreshPlaylistApp(self)
+
+        # Set left panel and main widget
+        self.mainWidget = MainWidget(self.databaseObject, self.musicEventHandler, self)
+        
+        if self.singlePlaylist:
+            self.setWindowTitle(self.selectedPlaylist)
+            self.setCentralWidget(self.mainWidget)
+        else:
+            self.setWindowTitle("My Tunes")
+            self.leftPanel = LeftPanel(self.mainWidget.databaseObject, self)
+
+            self.splitter = QSplitter(Qt.Horizontal)
+
+            self.centralWidget = QWidget(self)
+            self.layout = QVBoxLayout()
+            self.centralWidget.setLayout(self.layout)
+
+            self.splitter.addWidget(self.leftPanel)
+            self.splitter.addWidget(self.mainWidget)
+
+            # Set the stretch factors
+            self.splitter.setStretchFactor(0, 1)
+            self.splitter.setStretchFactor(1, 7)
+
+            self.layout.addWidget(self.splitter)
+
+            self.setCentralWidget(self.centralWidget)
+
+        # Start music handler threads
+        self.musicEventHandler.start()
+        self.musicPositionThread.start()
+        self.refreshPlaylistApp.start()
 
         # Init fonts
         self.initFonts()
@@ -32,78 +97,92 @@ class MainWindow(QMainWindow):
         # Initialize style sheet
         self.initStyleSheet()
 
+        # Init signals 
+        self.initSignals()
+
         # Show main window
         self.show()
 
+    def handleArgv(self, argv):
+        if len(argv) > 1:
+            for arg in argv:
+                if arg.startswith("--single-playlist="):
+                    self.selectedPlaylist = arg.split("=")[1]
+                    self.singlePlaylist = True
+                    return None
+        self.selectedPlaylist = "Library"
+        self.singlePlaylist = False
+
+    def initSignals(self):
+        # Init top widget signals
+        self.DESELECT_SONG_ON_TABLE.connect(self.handleDeselectSong)
+
+        # Init bottom widget signals
+        self.MUSIC_CONTROL_SIGNAL.connect(self.handlePlayPauseButton)
+        self.songPlayingSignal.connect(self.handleSongPlaying)
+
+        # Init other signals
+        self.musicPositionSignal.connect(self.songPositionHandle)
+        self.REFRESH_SONGS.connect(self.refreshTopWidget)
+
+    @pyqtSlot()
+    def refreshTopWidget(self):
+        self.mainWidget.refreshTopWidget()
+
+    @pyqtSlot(int, int)
+    def songPositionHandle(self, val, position):
+        self.mainWidget.songPositionHandle(val, position)
+        
+    @pyqtSlot()
+    def handleDeselectSong(self):
+        self.mainWidget.handleDeselectSong()
+        
+    @pyqtSlot(int)
+    def handlePlayPauseButton(self, value):
+        self.mainWidget.handlePlayPauseButton(value)
+        
+    @pyqtSlot(int, str)
+    def handleSongPlaying(self, value, songName):
+        self.mainWidget.handleSongPlaying(value, songName)
+        
     # Defining this to stop pygame thread.
     def closeEvent(self, event):
-        self.mainWidget.musicEventHandler.stop()
-        self.mainWidget.musicEventHandler.wait()
-        self.mainWidget.databaseObject.cur.close()
-        self.mainWidget.databaseObject.conn.close()
-        QApplication.quit()
-
+        if not self.singlePlaylist and self.leftPanel.singleWindowRunning:
+            self.leftPanel.singlePlaylistWindow.stop()
+            self.leftPanel.singlePlaylistWindow.wait()
+        
+        self.refreshPlaylistApp.stop()
+        self.musicPositionThread.stop()
+        self.musicPositionThread.wait()
+        self.musicEventHandler.stop()
+        self.musicEventHandler.wait()
+        event.accept()
 
     def initMenu(self):
         self.menubar = QMenuBar(self)
-
-        self.fileMenu = QMenu("File")
-        
-        self.openSongAction = QAction("Open and play a song")
-        self.exitAppAction = QAction("Close")
-        self.addSongAction = QAction("Add song to library")
-        self.deleteSongAction = QAction("Delete currently selected song")
-
-        self.fileMenu.addAction(self.openSongAction)
-        self.fileMenu.addAction(self.exitAppAction)
-        self.fileMenu.addSeparator()
-        self.fileMenu.addAction(self.addSongAction)
-        self.fileMenu.addAction(self.deleteSongAction)
-
+        self.fileMenu = FileMenu(not self.singlePlaylist, self) # This class has 2 optional variables so I need to write which variable should self be assigned to 
         self.menubar.addMenu(self.fileMenu)
 
-        global USE_QT_MATERIAL # Define if we should use Qt Material or not.
+        self.fileMenu.openSongAction.triggered.connect(self.mainWidget.openAndPlayAMp3)
+        self.fileMenu.exitAppAction.triggered.connect(lambda _: self.closeEvent(0))
+        self.fileMenu.addSongAction.triggered.connect(self.mainWidget.addSong)
+        self.fileMenu.deleteSongAction.triggered.connect(self.mainWidget.deleteSong)
+        if not self.singlePlaylist and self.fileMenu.isMainMenu:
+            self.fileMenu.createPlaylistAction.triggered.connect(self.leftPanel.createPlaylist)
 
-        if USE_QT_MATERIAL:
-            self.themeMenu = QMenu("Theme")
-
-            self.themeActions = []
+        self.controlMenu = ControlMenu(self.mainWidget, self)
+        self.menubar.addMenu(self.controlMenu)
         
-            for themeName in list_themes():
-                self.themeActions.append(QAction(themeName))
-                self.themeMenu.addAction(self.themeActions[-1])
-                self.themeActions[-1].triggered.connect(lambda _, x=themeName : self.setTheme(x))
-
-            self.menubar.addMenu(self.themeMenu)
-
         self.setMenuBar(self.menubar)
 
-        self.openSongAction.triggered.connect(self.mainWidget.openAndPlayAMp3)
-        self.exitAppAction.triggered.connect(self.closeAppMenuAction)
-        self.addSongAction.triggered.connect(self.mainWidget.addSong)
-        self.deleteSongAction.triggered.connect(self.mainWidget.deleteSong)
-
-    def setTheme(self, theme):
-        apply_stylesheet(self.app, theme)
-        self.mainWidget.currentTheme = theme
-        #self.mainWidget.topWidget.resizeColumnsToContents()
-
-        self.mainWidget.setSongPlayingSignalButtonBorder()
-
-    def closeAppMenuAction(self):
-        self.closeEvent(0)
-
     def initFonts(self):
-        font_id = QFontDatabase.addApplicationFont("data/fonts/Aller_Rg.ttf")
+        fontId = QFontDatabase.addApplicationFont("data/fonts/Aller_Rg.ttf")
 
         # Check if font loading was successful (optional)
-        if font_id != -1:
-            print("Font loaded successfully")
-        else:
+        if fontId == -1:
             print("Failed to load font!")
 
     def initStyleSheet(self):
         with open('data/css/dark.css', 'r') as f:
             stylesheet = f.read()
             self.app.setStyleSheet(stylesheet)
-        #self.mainWidget.topWidget.resizeColumnsToContents()

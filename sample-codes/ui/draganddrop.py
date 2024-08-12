@@ -1,61 +1,81 @@
-import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget, QSizePolicy
-from PyQt5.QtCore import Qt, QUrl
-from PyQt5.QtGui import QDropEvent, QDragEnterEvent
-from mutagen.mp3 import MP3
-from mutagen.easyid3 import EasyID3
+from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QApplication, QMainWindow, QVBoxLayout, QWidget
+from PyQt5.QtCore import Qt
 
-class SongTableWidget(QTableWidget):
-    def __init__(self, parent=None):
-        super(SongTableWidget, self).__init__(parent)
+class MyTableWidget(QTableWidget):
+    def __init__(self, rows, columns, parent=None):
+        super().__init__(rows, columns, parent)
+        self.setDragEnabled(True)
         self.setAcceptDrops(True)
-        self.setColumnCount(3)
-        self.setHorizontalHeaderLabels(['Title', 'Artist', 'Duration'])
-        
-        # Set size policy to expand
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-    
-    def dragEnterEvent(self, event: QDragEnterEvent):
-        pass
-    
-    def dropEvent(self, event: QDropEvent):
-        print(event.mimeData().text())
-    
-    def addSong(self, file_path):
-        try:
-            audio = MP3(file_path, ID3=EasyID3)
-            title = audio.get('title', ['Unknown Title'])[0]
-            artist = audio.get('artist', ['Unknown Artist'])[0]
-            duration = int(audio.info.length)
-            duration_str = f"{duration // 60}:{duration % 60:02d}"
-        except Exception as e:
-            print(f"Error reading {file_path}: {e}")
-            return
-        
-        row = self.rowCount()
-        self.insertRow(row)
-        self.setItem(row, 0, QTableWidgetItem(title))
-        self.setItem(row, 1, QTableWidgetItem(artist))
-        self.setItem(row, 2, QTableWidgetItem(duration_str))
+        self.setDragDropMode(QTableWidget.InternalMove)
+        self.setSelectionBehavior(QTableWidget.SelectRows)
+
+    def dragEnterEvent(self, event):
+        if event.source() == self:
+            event.setDropAction(Qt.MoveAction)
+        else:
+            event.acceptProposedAction()
+
+    def dragMoveEvent(self, event):
+        event.accept()
+
+    def dropEvent(self, event):
+        source_table = event.source()
+        if source_table == self:
+            super().dropEvent(event)
+        else:
+            # Assuming we're dropping a row from another table
+            row = source_table.currentRow()
+            new_row_position = self.rowCount()
+            self.insertRow(new_row_position)
+
+            for column in range(source_table.columnCount()):
+                item = source_table.item(row, column)
+                if item:
+                    new_item = QTableWidgetItem(item.text())
+                    self.setItem(new_row_position, column, new_item)
+
+            source_table.removeRow(row)
+
+            event.setDropAction(Qt.MoveAction)
+            event.accept()
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Song List")
-        self.setGeometry(100, 100, 600, 400)
-        
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-        
-        layout = QVBoxLayout()
-        self.song_table = SongTableWidget()
-        
-        # Set stretch factor for the song table to take more space
-        layout.addWidget(self.song_table)
-        central_widget.setLayout(layout)
 
-if __name__ == '__main__':
+        self.setWindowTitle("Drag and Drop Between Tables")
+
+        self.table1 = MyTableWidget(3, 3)
+        self.table2 = MyTableWidget(3, 3)
+
+        # Fill the first table with some items
+        for row in range(3):
+            for column in range(3):
+                item = QTableWidgetItem(f"Item {row}, {column}")
+                self.table1.setItem(row, column, item)
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.table1)
+        layout.addWidget(self.table2)
+
+        container = QWidget()
+        container.setLayout(layout)
+        self.setCentralWidget(container)
+
+def create_second_window(app):
+    second_window = MainWindow()
+    second_window.setWindowTitle("Second Window")
+    second_window.show()
+    return second_window
+
+if __name__ == "__main__":
+    import sys
+
     app = QApplication(sys.argv)
-    main_win = MainWindow()
-    main_win.show()
+    window1 = MainWindow()
+    window1.show()
+
+    # Create the second window
+    window2 = create_second_window(app)
+
     sys.exit(app.exec_())
