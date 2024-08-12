@@ -252,9 +252,6 @@ class MainWidget(QWidget):
             self.songDurationSliderWidget.setForNewSong(self.musicEventHandler.getDuration(filePath))
  
     def addSongWithPath(self, filePath): # Overloading this method so we can also add songs by using drag and drop feature.
-        if os.path.join(self.parent.MUSIC_PATH, os.path.basename(filePath)) in self.databaseObject.getSongs(self.parent.selectedPlaylist):
-            return None
-        
         if filePath and filePath.endswith('.mp3'):
             toPath = os.path.join(self.parent.MUSIC_PATH, os.path.basename(filePath))
 

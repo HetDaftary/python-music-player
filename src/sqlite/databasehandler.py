@@ -14,9 +14,9 @@ class DatabaseHandler:
         self.cur = self.conn.cursor()
 
         createTableSyntax = [
-            "CREATE TABLE IF NOT EXISTS songDetails (title	TEXT UNIQUE, artist	TEXT, genre	TEXT, album	TEXT, comment	TEXT, year	TEXT, songId	INTEGER, toShowInLib	INTEGER DEFAULT 1, PRIMARY KEY(songId));",
+            "CREATE TABLE IF NOT EXISTS songDetails (title	TEXT UNIQUE, artist	TEXT, genre	TEXT, album	TEXT, comment	TEXT, year	TEXT, songId	INTEGER, PRIMARY KEY(songId));",
             "CREATE TABLE IF NOT EXISTS songNameToSongId (songName	TEXT,songId	INTEGER,PRIMARY KEY(songName));",
-            "CREATE TABLE IF NOT EXISTS playlistIdToSongId (songId	INTEGER,playlistId	INTEGER,PRIMARY KEY(playlistId,songId));",
+            "CREATE TABLE IF NOT EXISTS playlistIdToSongId (songId	INTEGER,playlistId	INTEGER);",
             "CREATE TABLE IF NOT EXISTS playlistNameToPlaylistId (playlistName	TEXT,playlistId	INTEGER,PRIMARY KEY(playlistName));",
             "CREATE TABLE IF NOT EXISTS songsInHistory (songName TEXT PRIMARY KEY, playedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP);",
             "CREATE TABLE IF NOT EXISTS columnNameToShow (columnName	TEXT, toShow	INTEGER, PRIMARY KEY(columnName));"
@@ -133,7 +133,11 @@ class DatabaseHandler:
         query = f"INSERT or REPLACE into songDetails(songId, title, artist, album, year, genre, comment) VALUES ({songId},\"{title}\",\"{artist}\",\"{album}\",\"{year}\",\"{genre}\",\"{comment}\");"
         self.executeSqlQuery(query)
 
-        query = f"INSERT or REPLACE into playlistIdToSongId(playlistId, songId) VALUES ({playlistId}, {songId});"
+        query = ""
+        if playlistName.lower() != "library":
+            query = f"INSERT into playlistIdToSongId(playlistId, songId) VALUES ({playlistId}, {songId});"
+        else:
+            query = f"INSERT or REPLACE into playlistIdToSongId(playlistId, songId) VALUES ({playlistId}, {songId});"
         self.executeSqlQuery(query)
 
     def getSongsWithTitle(self, playlistName):
