@@ -1,7 +1,3 @@
 **/__pycache__
-<<<<<<< HEAD
-myenv/
-=======
 myenv/*
 **/temp/*
->>>>>>> phase-2
