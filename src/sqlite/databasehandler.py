@@ -165,7 +165,7 @@ class DatabaseHandler:
         query = f"DELETE FROM playlistIdToSongId WHERE playlistId={playlistId} AND songId={songId};"
         self.executeSqlQuery(query)
 
-        if playlistName == "library":
+        if playlistName.lower() == "library":
             query = f"DELETE FROM songDetails WHERE songId={songId};"
             self.executeSqlQuery(query)
             query = f"DELETE FROM songNameToSongId WHERE songName=\"{songName}\";"
