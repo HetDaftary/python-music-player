@@ -264,6 +264,8 @@ class MainWidget(QWidget):
         self.databaseObject.writeSongDataToTable(self.parent.selectedPlaylist, toPath, *self.musicEventHandler.getSongData(toPath))
         with open(f"data/temp/{self.parent.selectedPlaylist}.txt", "w") as filePtr:
             filePtr.write("refresh")
+        with open("data/temp/Library.txt", "w") as filePtr:
+            filePtr.write("refresh")
         #self.refreshTopWidget()
     
     def addSong(self):
@@ -282,6 +284,8 @@ class MainWidget(QWidget):
             songName = songs[i]
             self.databaseObject.addToPlaylist(playlistName, songName)
         with open(f"data/temp/{self.parent.selectedPlaylist}.txt", "w") as filePtr:
+            filePtr.write("refresh")
+        with open("data/temp/Library.txt", "w") as filePtr:
             filePtr.write("refresh")
 
     def deleteSong(self):
@@ -302,6 +306,8 @@ class MainWidget(QWidget):
                     self.parent.controlMenu.addRecentSongs()
         
         with open(f"data/temp/{self.parent.selectedPlaylist}.txt", "w") as filePtr:
+            filePtr.write("refresh")
+        with open("data/temp/Library.txt", "w") as filePtr:
             filePtr.write("refresh")
 
         #self.refreshTopWidget()

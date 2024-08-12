@@ -14,7 +14,7 @@ class DatabaseHandler:
         self.cur = self.conn.cursor()
 
         createTableSyntax = [
-            "CREATE TABLE IF NOT EXISTS songDetails (title	TEXT UNIQUE, artist	TEXT, genre	TEXT, album	TEXT, comment	TEXT, year	TEXT, songId	INTEGER, PRIMARY KEY(songId));",
+            "CREATE TABLE IF NOT EXISTS songDetails (title	TEXT UNIQUE, artist	TEXT, genre	TEXT, album	TEXT, comment	TEXT, year	TEXT, songId	INTEGER, toShowInLib	INTEGER DEFAULT 1, PRIMARY KEY(songId));",
             "CREATE TABLE IF NOT EXISTS songNameToSongId (songName	TEXT,songId	INTEGER,PRIMARY KEY(songName));",
             "CREATE TABLE IF NOT EXISTS playlistIdToSongId (songId	INTEGER,playlistId	INTEGER,PRIMARY KEY(playlistId,songId));",
             "CREATE TABLE IF NOT EXISTS playlistNameToPlaylistId (playlistName	TEXT,playlistId	INTEGER,PRIMARY KEY(playlistName));",

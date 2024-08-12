@@ -19,8 +19,11 @@ class RefreshPlaylistApp(QThread):
         if not os.path.exists(f"data/temp/{self.selectedPlaylist}.txt"):
             with open(f"data/temp/{self.selectedPlaylist}.txt", "w") as f:
                 pass
+            with open("data/temp/Library.txt", "w") as filePtr:
+                filePtr.write("refresh")
 
         self.lastMTime = os.path.getmtime(f"data/temp/{self.selectedPlaylist}.txt")
+        self.lastMTimeLib = self.lastMTime if self.selectedPlaylist.lower() == "library" else os.path.getmtime("data/temp/Library.txt")
 
     def processFileChanged(self, path):
         print("method called")
@@ -32,6 +35,13 @@ class RefreshPlaylistApp(QThread):
         while self.running:
             if os.path.getmtime(f"data/temp/{self.selectedPlaylist}.txt") > self.lastMTime:
                 self.parent.REFRESH_SONGS.emit()
+            if self.selectedPlaylist != "library" and os.path.getmtime("data/temp/Library.txt") > self.lastMTimeLib:
+                self.parent.REFRESH_SONGS.emit()
+            
+            self.lastMTime = os.path.getmtime(f"data/temp/{self.selectedPlaylist}.txt")
+            if self.selectedPlaylist != "library":
+                self.lastMTimeLib = os.path.getmtime("data/temp/Library.txt")
+
             self.msleep(self.delay)
     
     def stop(self):
