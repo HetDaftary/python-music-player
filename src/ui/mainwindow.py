@@ -149,6 +149,7 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event):
         if not self.singlePlaylist and self.leftPanel.singleWindowRunning:
             self.leftPanel.singlePlaylistWindow.stop()
+            self.leftPanel.singlePlaylistWindow.wait()
         
         self.refreshPlaylistApp.stop()
         self.musicPositionThread.stop()
