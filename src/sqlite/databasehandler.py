@@ -1,8 +1,15 @@
+import os
 import sqlite3
 
 class DatabaseHandler:
     DATABASE_FILENAME = "data/database/database.db"
     def __init__(self):
+        # Make directory of database if it does not exists.
+        dirName = os.path.dirname(DatabaseHandler.DATABASE_FILENAME)
+        if not os.path.exists(dirName):
+            os.makedirs(dirName)
+
+        # Open database 
         self.conn = sqlite3.connect(DatabaseHandler.DATABASE_FILENAME)
         self.cur = self.conn.cursor()
 
@@ -17,6 +24,10 @@ class DatabaseHandler:
 
         for i in createTableSyntax:
             self.executeSqlQuery(i)
+
+    def __del__(self):
+        self.cur.close()
+        self.conn.close()
 
     def getColumnsToShow(self):
         columnNames = ["title", "artist", "album", "genre", "year", "comment"]
@@ -124,7 +135,7 @@ class DatabaseHandler:
         query = f"INSERT or REPLACE into playlistIdToSongId(playlistId, songId) VALUES ({playlistId}, {songId});"
         self.executeSqlQuery(query)
 
-    def getSongs(self, playlistName):
+    def getSongsWithTitle(self, playlistName):
         query = ""
         if playlistName.lower() == "library":
             query = "SELECT songName FROM songNameToSongId;"
@@ -132,9 +143,12 @@ class DatabaseHandler:
             playlistId = self.getPlaylistIdFromName(playlistName)
             query = f"SELECT sns.songName FROM playlistIdToSongId pts INNER JOIN songNameToSongId sns ON pts.songId = sns.songId WHERE pts.playlistId = {playlistId};"
         unsortedSongs = [x[0] for x in self.executeSqlQuery(query)]
-        
+
+        return sorted([[self.getSongTitle(song), song] for song in unsortedSongs], key=lambda x : x[0])
+
+    def getSongs(self, playlistName):
         # Sending songs based on title.
-        return [x[1] for x in sorted([[self.getSongTitle(song), song] for song in unsortedSongs], key=lambda x : x[0])]
+        return [x[1] for x in self.getSongsWithTitle(playlistName)]
 
     def getSongData(self, songName):
         columnsToShow = [f"sd.{x}" for x in self.getColumnsToShow()]

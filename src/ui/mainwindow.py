@@ -145,8 +145,6 @@ class MainWindow(QMainWindow):
         self.musicPositionThread.wait()
         self.musicEventHandler.stop()
         self.musicEventHandler.wait()
-        self.databaseObject.cur.close()
-        self.databaseObject.conn.close()
         event.accept()
 
     def initMenu(self):

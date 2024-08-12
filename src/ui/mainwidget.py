@@ -94,8 +94,9 @@ class MainWidget(QWidget):
             else:    
                 self.topWidget.songSelectedByUser = 0
         
-        self.musicEventHandler.PLAY_NEW_SIGNAL.emit(self.musicEventHandler.PLAY_SELECTED, self.topWidget.songs[self.topWidget.songSelectedByUser])  
-        self.songIndex = self.topWidget.songSelectedByUser
+        self.songIndex = self.topWidget.songTitleToIndex[self.topWidget.item(self.topWidget.songSelectedByUser, 0).text()]
+
+        self.musicEventHandler.PLAY_NEW_SIGNAL.emit(self.musicEventHandler.PLAY_SELECTED, self.topWidget.songs[self.songIndex])  
         self.databaseObject.addSongToHistory(self.topWidget.songs[self.songIndex])
         self.songDurationSliderWidget.setForNewSong(self.musicEventHandler.getDuration(self.topWidget.songs[self.songIndex]))
         self.parent.controlMenu.addRecentSongs()
@@ -160,9 +161,7 @@ class MainWidget(QWidget):
         self.bottomWidget.songPlayingLabel.setText(f"{songTitle}" if songTitle != "" else "")
         self.setSongPlayingSignalButtonBorder()
 
-        songs = self.databaseObject.getSongs(self.parent.selectedPlaylist)
-        
-        self.topWidget.refreshPage(songs)
+        self.topWidget.refreshPage()
 
     def highlightRow(self, row):
         for i in range(self.topWidget.rowCount()):
@@ -204,7 +203,7 @@ class MainWidget(QWidget):
 
     #@pyqtSlot()
     def refreshTopWidget(self):
-        self.topWidget.refreshPage(self.databaseObject.getSongs(self.parent.selectedPlaylist))
+        self.topWidget.refreshPage()
         self.parent.show()
 
     #@pyqtSlot(int)

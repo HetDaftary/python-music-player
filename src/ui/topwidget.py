@@ -28,7 +28,7 @@ class TopWidget(QTableWidget):
         self.setSelectionBehavior(QTableWidget.SelectRows)
 
         #self.setSortingEnabled(True)
-        self.refreshPage(self.databaseObject.getSongs(self.parent.parent.selectedPlaylist))
+        self.refreshPage()
         self.setSelectionBehavior(QTableWidget.SelectRows)
         self.cellClicked.connect(self.handleCellClicked)
         #self.itemDoubleClicked.connect(self.parent.playSelectedButtonAction) # Double click event would trigger play selected.
@@ -65,7 +65,7 @@ class TopWidget(QTableWidget):
             self.parent.databaseObject.enableColumnName(menuAction.text())
         else:
             self.parent.databaseObject.disableColumnName(menuAction.text())
-        self.refreshPage(self.songs)
+        self.refreshPage()
 
     def addMusicPathToDatabase(self):
         for file in os.listdir(self.parent.parent.MUSIC_PATH):
@@ -74,20 +74,27 @@ class TopWidget(QTableWidget):
             if file.endswith(".mp3") and songDataFromDatabase != None and len(songDataFromDatabase) == 0:
                 self.databaseObject.writeSongDataToTable("library", songName, *MusicEventHandler.getSongData(songName))
 
-    def refreshPage(self, songs):
-        self.songs = songs
+    def refreshPage(self):
+        songsTitlePair = self.databaseObject.getSongsWithTitle(self.parent.parent.selectedPlaylist)
+        self.songs = [x[1] for x in songsTitlePair]
+        self.songTitleToIndex = dict()
+        self.songNameToIndex = dict()
+        for i in range(len(self.songs)):
+            self.songTitleToIndex[songsTitlePair[i][0]] = i
+            self.songNameToIndex[songsTitlePair[i][1]] = i
+
         self.labelHeaderNames = [x.capitalize() for x in self.databaseObject.getColumnsToShow()]
 
         self.clearContents()
 
-        self.setRowCount(len(songs))
+        self.setRowCount(len(self.songs))
         self.setColumnCount(len(self.labelHeaderNames))
 
         self.labelNames = []
 
         self.setHorizontalHeaderLabels(self.labelHeaderNames)
 
-        for song in songs:
+        for song in self.songs:
             ## To implement logic to get data from database.
             songDataFromDatabase = self.databaseObject.getSongData(song)
 
@@ -139,7 +146,7 @@ class TopWidget(QTableWidget):
     def dragEnterEvent(self, event: QDropEvent):
         sourceTable = event.source()
         if sourceTable == self:
-            self.refreshPage(self.songs)
+            self.refreshPage()
             return None
         else:
             rowsData = event.mimeData().text().split('\n')
@@ -158,7 +165,7 @@ class TopWidget(QTableWidget):
                 if file.startswith("file://") and file.endswith(".mp3"):
                     self.parent.addSongWithPath(file[7:]) # converting file url to normal file.
 
-        self.refreshPage(self.songs)
+        self.refreshPage()
 
     def dropEvent(self, event: QDropEvent):
         for url in event.mimeData().urls():
