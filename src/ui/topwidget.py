@@ -72,7 +72,7 @@ class TopWidget(QTableWidget):
             songName = os.path.join(self.parent.parent.MUSIC_PATH, file)
             songDataFromDatabase = self.databaseObject.getSongData(songName)
             if file.endswith(".mp3") and songDataFromDatabase != None and len(songDataFromDatabase) == 0:
-                self.databaseObject.writeSongDataToTable("library", songName, *MusicEventHandler.getSongData(songName))
+                self.databaseObject.writeSongDataToTable(self.parent.parent.selectedPlaylist, songName, *MusicEventHandler.getSongData(songName))
 
     def refreshPage(self):
         songsTitlePair = self.databaseObject.getSongsWithTitle(self.parent.parent.selectedPlaylist)
@@ -148,7 +148,7 @@ class TopWidget(QTableWidget):
         if sourceTable == self:
             self.refreshPage()
             return None
-        else:
+        elif '\t' in event.mimeData().text(): # We do not assume that tab would be in a normal file name, it would just be in a table row
             rowsData = event.mimeData().text().split('\n')
 
             for rowData in rowsData:

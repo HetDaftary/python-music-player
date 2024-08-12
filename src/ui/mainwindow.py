@@ -10,6 +10,7 @@ from ui.controlmenu import ControlMenu
 from ui.mainwidget import MainWidget
 from ui.leftpanel import LeftPanel
 from ui.singleplaylistwindow import SinglePlaylistWindow
+from ui.refreshplaylistapp import RefreshPlaylistApp
 
 # Importing necessary classes for handling music
 from mp3.musicEventHandler import MusicEventHandler
@@ -35,6 +36,7 @@ class MainWindow(QMainWindow):
     songPlayingSignal = pyqtSignal(int, str, name = "tellsWhichSongIsPlaying") # tells which song is getting played
     DESELECT_SONG_ON_TABLE = pyqtSignal(name = "deselectTheSelectSong")
     musicPositionSignal = pyqtSignal(int, int, name = "givesMusicPosition") # Song 
+    REFRESH_SONGS = pyqtSignal(name = "refreshTopWidget")
 
     def __init__(self, app, argv):
         super().__init__()
@@ -45,13 +47,14 @@ class MainWindow(QMainWindow):
         screenSize = self.app.primaryScreen().size() 
         self.resize(screenSize.width() // 2, screenSize.height() // 2)
 
-
         # Init database 
         self.databaseObject = DatabaseHandler()
 
         # Init music player
         self.musicEventHandler = MusicEventHandler(self)
         self.musicPositionThread = MusicPositionThread(self.musicEventHandler, self)
+
+        self.refreshPlaylistApp = RefreshPlaylistApp(self)
 
         # Set left panel and main widget
         self.mainWidget = MainWidget(self.databaseObject, self.musicEventHandler, self)
@@ -83,6 +86,7 @@ class MainWindow(QMainWindow):
         # Start music handler threads
         self.musicEventHandler.start()
         self.musicPositionThread.start()
+        self.refreshPlaylistApp.start()
 
         # Init fonts
         self.initFonts()
@@ -119,6 +123,11 @@ class MainWindow(QMainWindow):
 
         # Init other signals
         self.musicPositionSignal.connect(self.songPositionHandle)
+        self.REFRESH_SONGS.connect(self.refreshTopWidget)
+
+    @pyqtSlot()
+    def refreshTopWidget(self):
+        self.mainWidget.refreshTopWidget()
 
     @pyqtSlot(int, int)
     def songPositionHandle(self, val, position):
@@ -140,7 +149,8 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event):
         if not self.singlePlaylist and self.leftPanel.singleWindowRunning:
             self.leftPanel.singlePlaylistWindow.stop()
-
+        
+        self.refreshPlaylistApp.stop()
         self.musicPositionThread.stop()
         self.musicPositionThread.wait()
         self.musicEventHandler.stop()

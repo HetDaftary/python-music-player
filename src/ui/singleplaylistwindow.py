@@ -15,11 +15,22 @@ class SinglePlaylistWindow(QThread):
         self.process = subprocess.Popen(["python3", "src/main.py", f"--single-playlist={self.playlistName}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         # Keep the thread running while the subprocess is active
-        while self.process.poll() is None:
-            pass  # Do nothing, just keep the thread alive
-
-        self.parent.singleWindowRunning = False
-        self.process = None
+        while True:
+            output = self.process.stdout.readline()
+            error = self.process.stderr.readline()
+        
+            if output:
+                print(f"STDOUT: {output.strip()}")
+        
+            if error:
+                print(f"STDERR: {error.strip()}")
+        
+            # Break the loop if the process is done and there is no more output
+            if output == '' and error == '' and self.process.poll() is not None:
+                break
+    
+        # Ensure the process has finished
+        self.process.wait()
 
     def stop(self):
         # Kill the subprocess if it is still running

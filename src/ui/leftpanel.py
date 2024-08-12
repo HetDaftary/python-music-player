@@ -94,6 +94,7 @@ class LeftPanel(QTreeWidget):
         if itemText != "Playlist":
             self.parent.selectedPlaylist = itemText
             self.parent.mainWidget.refreshTopWidget()
+            self.parent.refreshPlaylistApp.HANDLE_PLAYLIST_CHANGE.emit(self.parent.selectedPlaylist)
             self.parent.fileMenu.addSongAction.setText(f"Add song to {self.parent.selectedPlaylist.lower()}")
 
     def initLibrarySongs(self):
@@ -130,4 +131,4 @@ class LeftPanel(QTreeWidget):
                 self.parent.fileMenu.addSongAction.setText(f"Add song to {self.parent.selectedPlaylist.lower()}")
             else:
                 self.errorMessage = QMessageBox.critical(self, "Playlist name error", "Playlist name cannot be library, playlist or any existing playlist")
-        
+        self.parent.refreshPlaylistApp.HANDLE_PLAYLIST_CHANGE.emit(playlistName)        

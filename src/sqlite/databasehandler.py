@@ -98,7 +98,8 @@ class DatabaseHandler:
 
     def getSongNameFromTitle(self, songTitle):
         query = f"SELECT sn.songName FROM songDetails sd JOIN songNameToSongId sn ON sd.songId = sn.songId WHERE sd.title = \"{songTitle}\";"
-        return self.executeSqlQuery(query)[0][0]
+        toRet = self.executeSqlQuery(query)
+        return toRet[0][0] if len(toRet) else ""
 
     def getSongTitle(self, songName):
         songId = self.getSongIdFromSongName(songName)
