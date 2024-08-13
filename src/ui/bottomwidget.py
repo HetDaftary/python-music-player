@@ -58,7 +58,10 @@ class BottomWidget(QWidget):
         self.stopButton.setFixedSize(QSize(48, 48))
         self.buttonsLayout.addWidget(self.stopButton)
 
-        self.volumeSlider = VolumeSlider(self.buttonsWidget)
+        self.volumeSlider = VolumeSlider(self)
         self.buttonsLayout.addWidget(self.volumeSlider)
 
         self.layout.addWidget(self.buttonsWidget)
+    
+    def volumeIconHandle(self):
+        self.parent.volumeIconHandle()

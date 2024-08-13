@@ -73,6 +73,18 @@ class MainWidget(QWidget):
     def decreaseVolume(self):
         self.setVolume(max(min(self.bottomWidget.volumeSlider.horizontalSlider.value() - 5, 100), 0))
 
+    def volumeIconHandle(self):
+        if self.bottomWidget.volumeSlider.isMuted:
+            self.bottomWidget.volumeSlider.volumeIcon.setIcon(QIcon("data/icons/speaker.png"))
+            self.bottomWidget.volumeSlider.volumeIcon.setIconSize(QSize(32, 32))
+            self.setVolume(self.lastVol)
+        else:
+            self.bottomWidget.volumeSlider.volumeIcon.setIcon(QIcon("data/icons/mute.png"))
+            self.bottomWidget.volumeSlider.volumeIcon.setIconSize(QSize(32, 32))
+            self.lastVol = self.bottomWidget.volumeSlider.horizontalSlider.value()
+            self.setVolume(0)
+        self.bottomWidget.volumeSlider.isMuted = not self.bottomWidget.volumeSlider.isMuted
+
     def setRepeatSongs(self, checkState):
         self.repeatSongs = checkState
 
