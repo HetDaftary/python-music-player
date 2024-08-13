@@ -134,7 +134,6 @@ class MusicEventHandler(QThread):
 
     def setVolume(self, vol):
         self.vol = vol
-        
         self.player.setVolume(round(self.vol))
         
 

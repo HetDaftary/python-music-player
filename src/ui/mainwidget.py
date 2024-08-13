@@ -68,10 +68,10 @@ class MainWidget(QWidget):
         self.bottomWidget.volumeSlider.horizontalSlider.setValue(newVol)
 
     def increaseVolume(self):
-        self.setVolume(max(min(self.bottomWidget.volumeSlider.horizontalSlider.value() * 1.05, 100), 0))
+        self.setVolume(max(min(self.bottomWidget.volumeSlider.horizontalSlider.value() + 5, 100), 0))
     
     def decreaseVolume(self):
-        self.setVolume(max(min(self.bottomWidget.volumeSlider.horizontalSlider.value() * 0.95, 100), 0))
+        self.setVolume(max(min(self.bottomWidget.volumeSlider.horizontalSlider.value() - 5, 100), 0))
 
     def setRepeatSongs(self, checkState):
         self.repeatSongs = checkState
