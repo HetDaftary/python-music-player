@@ -1,13 +1,13 @@
 import os
 
-from PyQt5.QtCore import QThread, QFileSystemWatcher, pyqtSlot, pyqtSignal
+from PyQt5.QtCore import QThread, pyqtSlot, pyqtSignal
 
 class RefreshPlaylistApp(QThread):
     HANDLE_PLAYLIST_CHANGE = pyqtSignal(str, name="handlePlaylistChange") 
     def __init__(self, parent = None):
         super().__init__(parent)
         self.parent = parent
-        self.delay = 1000 # Sleep time in milliseconds
+        self.delay = 100 # Sleep time in milliseconds
         self.selectedPlaylist = ""
         self.HANDLE_PLAYLIST_CHANGE.connect(self.changePlaylist)
         self.running = True
