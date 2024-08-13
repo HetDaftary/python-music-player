@@ -63,7 +63,7 @@ class MainWindow(QMainWindow):
             self.setWindowTitle(self.selectedPlaylist)
             self.setCentralWidget(self.mainWidget)
         else:
-            self.setWindowTitle("My Tunes")
+            self.setWindowTitle("MyTunes")
             self.leftPanel = LeftPanel(self.mainWidget.databaseObject, self)
 
             self.splitter = QSplitter(Qt.Horizontal)
@@ -76,7 +76,7 @@ class MainWindow(QMainWindow):
             self.splitter.addWidget(self.mainWidget)
 
             # Set the stretch factors
-            self.splitter.setStretchFactor(0, 1)
+            self.splitter.setStretchFactor(0, 2)
             self.splitter.setStretchFactor(1, 7)
 
             self.layout.addWidget(self.splitter)
