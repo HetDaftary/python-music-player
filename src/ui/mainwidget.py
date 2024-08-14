@@ -178,6 +178,7 @@ class MainWidget(QWidget):
     def highlightRow(self, row):
         for i in range(self.topWidget.rowCount()):
             if i == row:    
+                self.topWidget.scrollToItem(self.topWidget.item(row, 0)) # To ensure that we always scroll to the selected item.
                 for col in range(self.topWidget.columnCount()):
                     self.topWidget.item(i, col).setBackground(QColor(82, 83, 186))  # #24c9c7
             else:
