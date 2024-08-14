@@ -64,6 +64,18 @@ class MainWidget(QWidget):
 
         if newVol == -1:
             newVol = self.bottomWidget.volumeSlider.horizontalSlider.value()
+
+        if newVol == 0:
+            self.bottomWidget.volumeSlider.volumeIcon.setIcon(QIcon("data/icons/mute.png"))
+            self.bottomWidget.volumeSlider.volumeIcon.setIconSize(QSize(32, 32))
+            self.lastVol = 60
+            self.bottomWidget.volumeSlider.isMuted = not self.bottomWidget.volumeSlider.isMuted
+        elif self.bottomWidget.volumeSlider.horizontalSlider.value() != 0:
+            self.bottomWidget.volumeSlider.volumeIcon.setIcon(QIcon("data/icons/speaker.png"))
+            self.bottomWidget.volumeSlider.volumeIcon.setIconSize(QSize(32, 32))
+            self.lastVol = 60
+            self.bottomWidget.volumeSlider.isMuted = not self.bottomWidget.volumeSlider.isMuted
+
         self.musicEventHandler.VOLUME_SIGNAL.emit(self.musicEventHandler.SET_VOLUME, newVol)
         self.bottomWidget.volumeSlider.horizontalSlider.setValue(newVol)
 
