@@ -23,6 +23,8 @@ class SongDurationSliderWidget(QWidget):
         self.endPosLabel.setSizePolicy(QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum))
         self.layout.addWidget(self.endPosLabel)
 
+        self.duration = 0
+
     @staticmethod
     def convertToTime(timeInMilliseconds):
         time = timeInMilliseconds // 1000
@@ -36,6 +38,7 @@ class SongDurationSliderWidget(QWidget):
         return f"{hours}:{minutes}:{seconds}"
 
     def setForNewSong(self, duration):
+        self.duration = duration
         durationTime = self.convertToTime(duration)
         self.endPosLabel.setText(durationTime) 
         self.endPosLabel.adjustSize()
@@ -51,3 +54,7 @@ class SongDurationSliderWidget(QWidget):
         self.currentPosLabel.setText(currentTime)
         self.currentPosLabel.adjustSize()
         self.horizontalSlider.setValue(position)
+
+        remainingTime = self.convertToTime(self.duration - position)
+        self.endPosLabel.setText(remainingTime)
+        self.endPosLabel.adjustSize()
