@@ -59,7 +59,10 @@ class BottomWidget(QWidget):
         self.buttonsLayout.addWidget(self.stopButton)
 
         self.volumeSlider = VolumeSlider(self)
-        self.buttonsLayout.addWidget(self.volumeSlider)
+        #self.buttonsLayout.addWidget(self.volumeSlider)
+
+        self.buttonsLayout.addWidget(self.volumeSlider.volumeIcon)
+        self.buttonsLayout.addWidget(self.volumeSlider.horizontalSlider)
 
         self.layout.addWidget(self.buttonsWidget)
     
