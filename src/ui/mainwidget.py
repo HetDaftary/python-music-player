@@ -67,6 +67,13 @@ class MainWidget(QWidget):
         self.musicEventHandler.VOLUME_SIGNAL.emit(self.musicEventHandler.SET_VOLUME, newVol)
         self.bottomWidget.volumeSlider.horizontalSlider.setValue(newVol)
 
+    def goToCurrentSong(self):
+        if self.songIndex == -1 and self.topWidget.songSelectedByUser != -1:
+            self.playSelectedButtonAction()
+        elif self.songIndex != -1:
+            self.handleDeselectSong()
+            self.highlightRow(self.songIndex)
+
     def increaseVolume(self):
         self.setVolume(max(min(self.bottomWidget.volumeSlider.horizontalSlider.value() + 5, 100), 0))
     

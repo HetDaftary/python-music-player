@@ -17,6 +17,8 @@ class ControlMenu(QMenu):
         self.previousButton = QAction("Previous") # Previous song button
         self.previousButton.setShortcut(Qt.CTRL + Qt.Key_Left)
         self.playRecentButton = QMenu("Play Recent") # Play recent button
+        self.goToCurrentSong = QAction("Go to Current Song")
+        self.goToCurrentSong.setShortcut("Ctrl+L")
         self.increaseVolume = QAction("Increase volume")
         self.increaseVolume.setShortcut("Ctrl+I") 
         self.decreaseVolume = QAction("Decrease volume")
@@ -31,6 +33,7 @@ class ControlMenu(QMenu):
         self.playButton.triggered.connect(self.mainWidget.playSelectedButtonAction)
         self.nextButton.triggered.connect(self.mainWidget.nextButtonAction)
         self.previousButton.triggered.connect(self.mainWidget.previousButtonAction)
+        self.goToCurrentSong.triggered.connect(self.mainWidget.goToCurrentSong)
 
         self.increaseVolume.triggered.connect(self.mainWidget.increaseVolume)
         self.decreaseVolume.triggered.connect(self.mainWidget.decreaseVolume)
@@ -42,6 +45,7 @@ class ControlMenu(QMenu):
         self.addAction(self.nextButton)
         self.addAction(self.previousButton)
         self.addMenu(self.playRecentButton)
+        self.addAction(self.goToCurrentSong)
         self.addSeparator()
         self.addAction(self.increaseVolume)
         self.addAction(self.decreaseVolume)
