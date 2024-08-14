@@ -170,7 +170,6 @@ class TopWidget(QTableWidget):
     def dropEvent(self, event: QDropEvent):
         for url in event.mimeData().urls():
             filePath = url.toLocalFile()
-            print(filePath)
 
     def contextMenuEvent(self, event):
         self.menuOnRightClick = QMenu(self)

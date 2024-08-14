@@ -233,8 +233,6 @@ class MainWidget(QWidget):
         self.bottomWidget.playPauseButton.setFixedSize(QSize(48, 48))
 
     def changeSongMetaData(self, item):
-        print(item.row(), item.row())
-
         songName = self.databaseObject.getSongs(self.parent.selectedPlaylist)[item.row()]
         rowContent = self.databaseObject.getSongData(songName)
         item.setText(item.text().capitalize())

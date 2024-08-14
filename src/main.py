@@ -4,7 +4,6 @@ import sys
 import signal
 
 def closeApplication(signal, frame):
-    print("closing app")
     QApplication.quit()
 
 def main():

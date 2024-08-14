@@ -8,8 +8,6 @@ class VolumeSlider(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.parent = parent
-        print(self.parent)
-
         self.layout = QHBoxLayout()
         self.setLayout(self.layout)
         self.setSizePolicy(QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum))
