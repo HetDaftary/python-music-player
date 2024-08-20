@@ -2,9 +2,9 @@ import os
 import urllib.parse
 import sys
 
-from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QSizePolicy, QMenu, QAction, QHeaderView
-from PyQt5.QtCore import Qt, QMimeData
-from PyQt5.QtGui import QDropEvent, QDrag
+from PyQt6.QtWidgets import QTableWidget, QTableWidgetItem, QSizePolicy, QMenu, QHeaderView, QAbstractItemView
+from PyQt6.QtCore import Qt, QMimeData
+from PyQt6.QtGui import QDropEvent, QDrag, QAction
 from mp3.musicEventHandler import MusicEventHandler
 
 class TopWidget(QTableWidget):
@@ -17,25 +17,24 @@ class TopWidget(QTableWidget):
         
         # MainWidget has the databaseObject
 
-        self.horizontalHeader().setContextMenuPolicy(Qt.CustomContextMenu)
+        self.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.horizontalHeader().customContextMenuRequested.connect(self.showHeaderContextMenu)
 
         self.addMusicPathToDatabase()
 
         self.setAcceptDrops(True)
-        self.setDragDropMode(True)
-        self.setDragDropMode(QTableWidget.InternalMove)
-        self.setSelectionBehavior(QTableWidget.SelectRows)
+        self.setDragDropMode(QAbstractItemView.DragDropMode.DropOnly)
+        self.setDragDropMode(QTableWidget.DragDropMode.InternalMove)
+        self.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
 
         #self.setSortingEnabled(True)
         self.refreshPage()
-        self.setSelectionBehavior(QTableWidget.SelectRows)
         self.cellClicked.connect(self.handleCellClicked)
         #self.itemDoubleClicked.connect(self.parent.playSelectedButtonAction) # Double click event would trigger play selected.
         self.verticalHeader().setVisible(False)
-        self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self.setWordWrap(True)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         #self.setSelectionMode(QTableWidget.SingleSelection)
 
     def showHeaderContextMenu(self, pos):
@@ -58,7 +57,7 @@ class TopWidget(QTableWidget):
             else:
                 x.setChecked(False)
 
-        contextMenu.exec_(globalPos)
+        contextMenu.exec(globalPos)
 
     def headerContextMenuActions(self, menuAction):
         if menuAction.isChecked():
@@ -107,7 +106,7 @@ class TopWidget(QTableWidget):
                 self.setItem(i, j, item)
                 if j != len(self.labelNames[i]) - 1: 
                     # Only allow comments to be editable
-                    item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+                    item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)
 
         index = sys.maxsize
         currentlyPlayingSong = self.parent.musicEventHandler.getSongPlaying()
@@ -196,4 +195,4 @@ class TopWidget(QTableWidget):
         self.deleteSongAction.triggered.connect(lambda _: self.parent.deleteSong())
         self.menuOnRightClick.addAction(self.deleteSongAction)
 
-        self.menuOnRightClick.exec_(event.globalPos())
+        self.menuOnRightClick.exec(event.globalPos())

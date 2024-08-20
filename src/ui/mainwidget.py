@@ -3,9 +3,9 @@ import os
 import shutil
 import random
 
-from PyQt5.QtWidgets import QVBoxLayout, QWidget, QMessageBox, QFileDialog
-from PyQt5.QtCore import QSize, QDir
-from PyQt5.QtGui import QIcon, QColor
+from PyQt6.QtWidgets import QVBoxLayout, QWidget, QMessageBox, QFileDialog
+from PyQt6.QtCore import QSize, QDir
+from PyQt6.QtGui import QIcon, QColor
 
 # Importing necessary classes for UI
 from ui.bottomwidget import BottomWidget

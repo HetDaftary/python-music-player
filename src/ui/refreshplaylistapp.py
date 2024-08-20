@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtCore import QThread, pyqtSlot, pyqtSignal
+from PyQt6.QtCore import QThread, pyqtSlot, pyqtSignal
 
 class RefreshPlaylistApp(QThread):
     HANDLE_PLAYLIST_CHANGE = pyqtSignal(str, name="handlePlaylistChange") 

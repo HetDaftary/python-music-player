@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QApplication, QTableWidget, QTableWidgetItem
-from PyQt5.QtGui import QColor
+from PyQt6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem
+from PyQt6.QtGui import QColor
 
 app = QApplication([])
 

@@ -1,6 +1,6 @@
 # PYTHON-MUSIC-PLAYER
 
-* A simple easy to use music player made in python using PyQt5, pygame and mutagen
+* A simple easy to use music player made in python using PyQt6, pygame and mutagen
 
 ## Running the project
 

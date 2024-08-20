@@ -1,7 +1,7 @@
 import sys
-from PyQt5.QtCore import Qt, QMimeData
-from PyQt5.QtGui import QDrag
-from PyQt5.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
+from PyQt6.QtCore import Qt, QMimeData
+from PyQt6.QtGui import QDrag
+from PyQt6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
 
 
 class SourceWindow(QWidget):

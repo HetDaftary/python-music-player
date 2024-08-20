@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-from PyQt5.QtCore import QThread 
+from PyQt6.QtCore import QThread 
 
 class SinglePlaylistWindow(QThread):
     def __init__(self, playlistName, parent = None):

@@ -1,5 +1,6 @@
-from PyQt5.QtWidgets import QMenu, QAction
-from PyQt5.QtCore import Qt
+from PyQt6.QtWidgets import QMenu
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QAction, QKeySequence
 
 from ui.mainwidget import MainWidget
 
@@ -11,18 +12,18 @@ class ControlMenu(QMenu):
         self.mainWidget = mainWidget
 
         self.playButton = QAction("Play") # Plays selected song
-        self.playButton.setShortcut("Space")
+        self.playButton.setShortcut(QKeySequence("Space"))
         self.nextButton = QAction("Next") # Next song button
-        self.nextButton.setShortcut(Qt.CTRL + Qt.Key_Right)
+        self.nextButton.setShortcut(QKeySequence("Ctrl+Right"))
         self.previousButton = QAction("Previous") # Previous song button
-        self.previousButton.setShortcut(Qt.CTRL + Qt.Key_Left)
+        self.previousButton.setShortcut(QKeySequence("Ctrl+Left"))
         self.playRecentButton = QMenu("Play Recent") # Play recent button
         self.goToCurrentSong = QAction("Go to Current Song")
-        self.goToCurrentSong.setShortcut("Ctrl+L")
+        self.goToCurrentSong.setShortcut(QKeySequence("Ctrl+L"))
         self.increaseVolume = QAction("Increase volume")
-        self.increaseVolume.setShortcut("Ctrl+I") 
+        self.increaseVolume.setShortcut(QKeySequence("Ctrl+I")) 
         self.decreaseVolume = QAction("Decrease volume")
-        self.decreaseVolume.setShortcut("Ctrl+D")
+        self.decreaseVolume.setShortcut(QKeySequence("Ctrl+D"))
         self.shuffle = QAction("Shuffle")
         self.shuffle.setCheckable(True)
         self.repeatSong = QAction("Repeat")

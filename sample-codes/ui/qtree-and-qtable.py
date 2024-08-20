@@ -1,6 +1,6 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QHeaderView, QMainWindow, QTreeWidget, QTableWidget, QTreeWidgetItem, QTableWidgetItem, QHBoxLayout, QWidget, QSplitter
-from PyQt5.QtCore import Qt
+from PyQt6.QtWidgets import QApplication, QHeaderView, QMainWindow, QTreeWidget, QTableWidget, QTreeWidgetItem, QTableWidgetItem, QHBoxLayout, QWidget, QSplitter
+from PyQt6.QtCore import Qt
 
 class TreeWidgetClass(QTreeWidget):
     def __init__(self, parent=None):
@@ -32,7 +32,7 @@ class MainWindow(QMainWindow):
         self.table_widget = TableWidgetClass()
 
         # Create a splitter to manage the layout
-        self.splitter = QSplitter(Qt.Horizontal)
+        self.splitter = QSplitter(Qt.Orientation.Horizontal)
         self.splitter.addWidget(self.tree_widget)
         self.splitter.addWidget(self.table_widget)
 

@@ -1,8 +1,8 @@
 import sys
 
-from PyQt5.QtWidgets import QMainWindow, QMenuBar, QApplication, QSplitter, QWidget, QVBoxLayout
-from PyQt5.QtGui import QFontDatabase
-from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
+from PyQt6.QtWidgets import QMainWindow, QMenuBar, QApplication, QSplitter, QWidget, QVBoxLayout
+from PyQt6.QtGui import QFontDatabase
+from PyQt6.QtCore import Qt, pyqtSignal, pyqtSlot
 
 # Importing necessary classes for UI
 from ui.filemenu import FileMenu
@@ -66,7 +66,7 @@ class MainWindow(QMainWindow):
             self.setWindowTitle("MyTunes")
             self.leftPanel = LeftPanel(self.mainWidget.databaseObject, self)
 
-            self.splitter = QSplitter(Qt.Horizontal)
+            self.splitter = QSplitter(Qt.Orientation.Horizontal)
 
             self.centralWidget = QWidget(self)
             self.layout = QVBoxLayout()

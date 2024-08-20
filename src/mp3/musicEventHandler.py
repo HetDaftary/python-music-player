@@ -2,9 +2,9 @@ import os
 import shutil
 from sys import maxsize
 
-from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
+from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 
-from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot, QMutex, QUrl
+from PyQt6.QtCore import QThread, pyqtSignal, pyqtSlot, QMutex, QUrl
 from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3
 
@@ -30,6 +30,8 @@ class MusicEventHandler(QThread):
         self.parent = parent 
         
         self.player = QMediaPlayer(self)
+        self.audioOutput = QAudioOutput(parent=self)
+        self.player.setAudioOutput(self.audioOutput)
 
         self.vol = 0.6
 
@@ -93,8 +95,7 @@ class MusicEventHandler(QThread):
                 url = QUrl.fromLocalFile(songName)  # Replace with the path to your MP3 file
             else:
                 url = QUrl.fromLocalFile(os.path.join(os.getcwd(), songName))
-            content = QMediaContent(url)
-            self.player.setMedia(content)
+            self.player.setSource(url)
             
             self.player.play()
             self.setVolume(self.volume)
@@ -134,7 +135,7 @@ class MusicEventHandler(QThread):
 
     def setVolume(self, vol):
         self.vol = vol
-        self.player.setVolume(round(self.vol))
+        self.audioOutput.setVolume(round(self.vol))
         
 
     def stop(self):

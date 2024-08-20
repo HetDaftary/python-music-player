@@ -1,4 +1,4 @@
-from PyQt5.QtCore import Qt
+from PyQt6.QtCore import Qt
 
 from ui.horizontalslider import HorizontalSlider
 
@@ -9,20 +9,21 @@ class SongPositionSlider(HorizontalSlider):
         self.musicEventHandler = musicEventHandler
 
     def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.MouseButton.LeftButton:
             # Calculate the new position based on the click location
-            if self.orientation() == Qt.Horizontal:
-                new_value = self.minimum() + (self.maximum() - self.minimum()) * event.x() / self.width()
-            else:
-                new_value = self.minimum() + (self.maximum() - self.minimum()) * (self.height() - event.y()) / self.height()
-            
+
+            pos = event.pos()
+            sliderRect = self.rect()
+
+            normalizedPos = (pos.x() - sliderRect.left()) / sliderRect.width()
+            value = normalizedPos * (self.maximum() - self.minimum()) + self.minimum()
+
             # Set the slider's value to the new position
-            self.setPosition(int(new_value))
-            #self.setValue(int(new_value))
-            self.parent.updatePosition(int(new_value))
+            self.setPosition(int(value))
+            self.parent.updatePosition(int(value))
             event.accept()
         else:
             super().mousePressEvent(event)
-    
+        
     def setPosition(self, newPosition):
         self.musicEventHandler.setPosition(newPosition)

@@ -1,7 +1,8 @@
-from PyQt5.QtWidgets import QApplication
-from ui.mainwindow import MainWindow
 import sys
 import signal
+
+from PyQt6.QtWidgets import QApplication
+from ui.mainwindow import MainWindow
 
 def closeApplication(signal, frame):
     QApplication.quit()
@@ -13,7 +14,7 @@ def main():
     app = QApplication(["My Tunes"])    
     window = MainWindow(app, sys.argv)
     
-    sys.exit(app.exec_())
+    app.exec()
 
 if __name__ == "__main__":
     main()

@@ -1,8 +1,8 @@
 import os
 
-from PyQt5.QtWidgets import QMessageBox, QTreeWidget, QTreeWidgetItem, QInputDialog, QMessageBox, QMenu, QAction, QAbstractItemView
-from PyQt5.QtCore import Qt
-
+from PyQt6.QtWidgets import QMessageBox, QTreeWidget, QTreeWidgetItem, QInputDialog, QMessageBox, QMenu, QAbstractItemView
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QAction
 from ui.singleplaylistwindow import SinglePlaylistWindow
 
 class LeftPanel(QTreeWidget):
@@ -10,8 +10,7 @@ class LeftPanel(QTreeWidget):
         super(LeftPanel, self).__init__(parent)
         self.parent = parent
         self.setHeaderHidden(True)
-        self.setSelectionMode(QAbstractItemView.SingleSelection)
-
+        
         self.currentlySelectedPlaylist = "Library"
         self.databaseObject = databaseObject
 
@@ -20,7 +19,7 @@ class LeftPanel(QTreeWidget):
         self.initPlaylistSongs()
 
         self.singleWindowRunning = False
-        self.setSelectionMode(QTreeWidget.SingleSelection)
+        self.setSelectionMode(QTreeWidget.SelectionMode.SingleSelection)
         self.itemSelectionChanged.connect(self.onItemSelected)
         self.itemDoubleClicked.connect(self.onItemDoubleClicked)
 

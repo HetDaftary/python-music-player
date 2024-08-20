@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import QMenu, QAction
+from PyQt6.QtWidgets import QMenu
+from PyQt6.QtGui import QAction
 
 class FileMenu(QMenu):
     def __init__(self, isMainMenu = True, parent = None):

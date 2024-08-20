@@ -1,7 +1,7 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget
-from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
-from PyQt5.QtCore import QUrl
+from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget
+from PyQt6.QtMultimedia import QMediaPlayer, QMediaContent
+from PyQt6.QtCore import QUrl
 
 import os
 
@@ -42,7 +42,7 @@ class MusicPlayer(QMainWindow):
         container.setLayout(layout)
         self.setCentralWidget(container)
 
-        self.setWindowTitle("PyQt5 MP3 Player")
+        self.setWindowTitle("PyQt6 MP3 Player")
         self.setGeometry(300, 300, 300, 150)
 
     def play_music(self):

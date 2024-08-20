@@ -1,6 +1,6 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QFileDialog, QWidget
-from PyQt5.QtCore import QDir
+from PyQt6.QtWidgets import QApplication, QFileDialog, QWidget
+from PyQt6.QtCore import QDir
 
 class FileDialogDemo(QWidget):
     def __init__(self):

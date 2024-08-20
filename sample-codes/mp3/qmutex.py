@@ -1,7 +1,7 @@
 
 import sys
-from PyQt5.QtCore import QMutex, QMutexLocker, QThread, pyqtSignal, pyqtSlot
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QLabel
+from PyQt6.QtCore import QMutex, QMutexLocker, QThread, pyqtSignal, pyqtSlot
+from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QLabel
 
 class Worker(QThread):
     # Signal to emit the result

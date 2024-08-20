@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QHBoxLayout, QPushButton, QSizePolicy
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import QSize
+from PyQt6.QtWidgets import QHBoxLayout, QPushButton, QSizePolicy
+from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import QSize
 
 from ui.horizontalslider import HorizontalSlider
 

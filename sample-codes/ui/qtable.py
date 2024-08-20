@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget, QHBoxLayout, QPushButton, QMessageBox, QSizePolicy
+from PyQt6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget, QHBoxLayout, QPushButton, QMessageBox, QSizePolicy
 
 class TableDemo(QWidget):
     def __init__(self):
@@ -29,7 +29,7 @@ class TableDemo(QWidget):
 
         # Connect cell click signal to a custom slot
         self.tableWidget.cellClicked.connect(self.cell_clicked)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
         # Layout setup
         layout = QVBoxLayout()

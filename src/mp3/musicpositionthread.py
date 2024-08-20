@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtCore import QThread
+from PyQt6.QtCore import QThread
 
 class MusicPositionThread(QThread):
     def __init__(self, musicEventHandler, parent = None):

@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QLabel, QWidget, QSizePolicy, QHBoxLayout
+from PyQt6.QtWidgets import QLabel, QWidget, QSizePolicy, QHBoxLayout
 
 from ui.songpositionslider import SongPositionSlider
 
@@ -13,14 +13,14 @@ class SongDurationSliderWidget(QWidget):
         self.setLayout(self.layout)
 
         self.currentPosLabel = QLabel("0:00:00")
-        self.currentPosLabel.setSizePolicy(QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum))
+        self.currentPosLabel.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum))
         self.layout.addWidget(self.currentPosLabel)
 
         self.horizontalSlider = SongPositionSlider(self.musicEventHandler, self)
         self.layout.addWidget(self.horizontalSlider)
 
         self.endPosLabel = QLabel("0:00:00")
-        self.endPosLabel.setSizePolicy(QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum))
+        self.endPosLabel.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum))
         self.layout.addWidget(self.endPosLabel)
 
         self.duration = 0

@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QSizePolicy, QLabel
-from PyQt5.QtCore import QSize, Qt
-from PyQt5.QtGui import QIcon
+from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QSizePolicy, QLabel
+from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtGui import QIcon
 
 from ui.volumeslider import VolumeSlider
 
@@ -16,17 +16,17 @@ class BottomWidget(QWidget):
         self.buttonsLayout = QHBoxLayout()
         self.buttonsWidget.setLayout(self.buttonsLayout)
         
-        self.buttonsLayout.setAlignment(Qt.AlignHCenter) 
+        self.buttonsLayout.setAlignment(Qt.AlignmentFlag.AlignHCenter) 
         self.setLayout(self.layout)
-        self.buttonsWidget.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum))
-        self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum))
+        self.buttonsWidget.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum))
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum))
 
         self.songPlayingLabel = QLabel("")
-        self.songPlayingLabel.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
+        self.songPlayingLabel.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding))
         self.songPlayingLabel.setMaximumHeight(self.buttonsWidget.height())
-        self.songPlayingLabel.setAlignment(Qt.AlignCenter)
+        self.songPlayingLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.layout.addWidget(self.songPlayingLabel)
-        self.layout.setAlignment(Qt.AlignBottom | Qt.AlignHCenter) 
+        self.layout.setAlignment(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter) 
 
         self.playSelected = QPushButton()
         self.playSelected.setIcon(QIcon("data/icons/play.png"))

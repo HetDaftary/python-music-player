@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QApplication, QMainWindow, QVBoxLayout, QWidget
-from PyQt5.QtCore import Qt
+from PyQt6.QtWidgets import QTableWidget, QTableWidgetItem, QApplication, QMainWindow, QVBoxLayout, QWidget
+from PyQt6.QtCore import Qt
 
 class MyTableWidget(QTableWidget):
     def __init__(self, rows, columns, parent=None):
