@@ -31,7 +31,9 @@ python3 src/main.py
 * Current look
 
 ![App look Main window](data/images/application.png)
-\
+
+* Playlist opened in new window
+
 ![App look playlist window](data/images/playlist.png)
 
 * Select and use play selected to play song of choice or play in normal way using play button.
