@@ -45,7 +45,7 @@ class LeftPanel(QTreeWidget):
         deletePlaylistAction.triggered.connect(self.deletePlaylist)
         contextMenu.addAction(deletePlaylistAction)
 
-        contextMenu.exec_(event.globalPos())
+        contextMenu.exec(event.globalPos())
 
     def handleSinglePlaylistWindow(self, playlistName):
         if playlistName.lower() == "library" or playlistName.lower() == "playlist":
