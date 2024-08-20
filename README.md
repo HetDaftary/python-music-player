@@ -30,68 +30,19 @@ python3 src/main.py
 
 * Current look
 
-![alt text](data/images/application.png)
+![App look Main window](data/images/application.png)
+\
+![App look playlist window](data/images/playlist.png)
 
 * Select and use play selected to play song of choice or play in normal way using play button.
-* Can edit meta data by just editing in the application.
+* Can edit comments of a song in the application.
 * Currently, I have not added the feature to add/remove any song to the application but it can be simply done by adding or removing mp3 files from "data/mp3-files" folder.
-
-## TODO
-
-| Task | Status |
-|------|--------|
-| Make feature to open a playlist in new window | currently stalled |
-| Make a feature to play any of last 10 songs from history stored in database | done |
-| Make a feature to hide or show certain columns | done |
-| Make control menu | done |
-| Make song position slider | done |
-| Make table ui pretty | Not started |
-| Make a feature to sort songs based on column | not started |
-
-### Make song position slider
-
-* Implemented backend for the same
-* Making ui and slots for this feature
-
-### Make control menu
-
-* Completed the following functionalities:
-  * Play selected
-  * Next
-  * Shuffle
-  * Previous
-  * Increase volume
-  * Decrease volume
-  * Repeat
-* To make keyboard shortcuts as per requirement
-
-### Make feature to open a playlist in new window
-
-* Made the ui for this
-* To clear certain doubts on how to play songs
-* To implement draMake a feature to sort songs based on columng and drop feature between windows
-* To ensure that if 1 playlist open then other playlists are not opened
-
-### Make a feature to play any of last 10 songs from history stored in database
-
-* To make a table in database which gives last 10 songs played and we can give a play recent feature based on it
-
-### Make a feature to hide or show certain columns
-
-* Make a table which contains info on which columns to hide
-* Give a context menu on column headers to show or hide the columns
-* Select which columns to show or hide, show columns
-* Update these entries in the database to make things consistent and show columns as per the selection
-
-### Make a song position slider
-
-* Make song slider ui
-* Implemented a QThread which gets position of the song and duration using pygame and mutagen api
-
-### Make table ui pretty
-
-* To make the ui pretty by getting designs of some good ui applications
-
-### Make a feature to sort songs based on column
-
-* Sort the songs based on title or other column
+* We can make our own playilst and delete them if required.
+* Songs can be added to the library or playlist by using context menu or drag and drop
+  * In the library section, context menu shows 3 entries and in the playlist it only shows 2
+  * We can add any to any playilst write from the library using the context menu
+* Any song added to the playlist will also be added to the library
+* We can add a song multiple times to the playlist but not to the library
+* We can open a playlist in a new window using context menu in the tree widget
+  * We can also drag and drop songs from library to playlist to add songs
+* We can play a song using song history in the control menu in the context menu
