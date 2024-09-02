@@ -38,6 +38,10 @@ QTableWidget::item {
     font-weight: bold;
 }
 
+QTableWidget::item::selected, QTreeWidget::item::selected {
+    background-color: #448aff;
+}
+
 QHeaderView::section, QHeaderView::item, QTableWidget::indicator {
     background-color: #232629;
     color: #bdbdbe;
